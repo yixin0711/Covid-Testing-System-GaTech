@@ -1,1 +1,1 @@
-# Covid-Testing-System-GaTech
+# Georgia Tech COVID-19 Testing System
