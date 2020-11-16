@@ -9,3 +9,4 @@
 4. 输入 `git commit -m "your comments here"`
 5. 输入 `git push`
 6. 在另一电脑端输入 `git pull`即可获得更新后的文件
+7. 注意将password改成自己本地的密码
