@@ -29,7 +29,7 @@ mysql = MySQL()
 
 # MySQL configurations
 app.config['MYSQL_DATABASE_USER'] = 'root'
-app.config['MYSQL_DATABASE_PASSWORD'] = '*******'       #your password here
+app.config['MYSQL_DATABASE_PASSWORD'] = '680212ok'       #your password here
 app.config['MYSQL_DATABASE_DB'] = 'covidtest_fall2020'
 app.config['MYSQL_DATABASE_HOST'] = 'localhost'
 mysql.init_app(app)
@@ -188,37 +188,24 @@ def register():
                     "INSERT INTO user (username, user_password, email, fname, lname) VALUES (%s, %s, %s, %s, %s)",
                     (_username, _password, _email, _fname, _lname),
                 )
+                
                 cursor.commit()
                 if str(_select_user) == 'Student':
                     _select_house = str(request.form.get('htypes'))
                     _select_location = str(request.form.get('ltypes'))
-                    cursor.execute(
-                        "INSERT INTO student (student_username, housing_type, location) VALUES (%s, %s, %s)",
-                        (_username, _select_house, _select_location),
-                    )
+                    cursor.callproc('register_student', (_username, _email, _fname, _lname, _select_location, _select_house, _password))
                     cursor.commit()
                 elif str(_select_user) == 'Employee':
-                    _phone_num = request.form['phone']
-                    cursor.execute(
-                        "INSERT INTO employee (emp_username, phone_num) VALUES (%s, %s)",
-                        (_username, _phone_num),
-                    )
-                    cursor.commit()
-                    if request.form.get('site_tester'):
-                        cursor.execute(
-                            "INSERT INTO sitetester (sitetester_username) VALUES (%s)",
-                            (_username),
-                        )
-                        cursor.commit()
-                    if request.form.get('lab_tech'):
-                        cursor.execute(
-                            "INSERT INTO labtech (labtech_username) VALUES (%s)",
-                            (_username),
-                        )
-                        cursor.commit()
-                    if not request.form.get('site_tester') and not request.form.get('lab_tech'):
+                    _phone_num = request.form['phone']                    
+                    is_site_tester = request.form.get('site_tester')
+                    is_lab_tech = request.form.get('lab_tech')
+                    
+                    if not is_site_tester and not is_lab_tech:
                         error = "You much select the checkbox."
                         return render_template("register.html", error = error)
+                    
+                    cursor.callproc('register_employee', (_username, _email, _fname, _lname, _phone_num, is_site_tester, is_lab_tech, _password))
+                    cursor.commit()
                         
                 else:
                     error = "You much select a user type."
