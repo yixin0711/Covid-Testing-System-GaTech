@@ -1,0 +1,41 @@
+{% extends 'layout.html' %}
+{% block title%} GT COVID-19 Testing {% endblock %}
+{% block link%} 
+	<a href="{{ url_for('index') }}"> Return to Home Page </a> |
+	<a href="{{ url_for('login') }}"> Log out </a> 
+{%  endblock%}
+
+{% block body%}
+	<h2> Admin Home </h2>
+
+	<p align="center">
+		<a href="{{ url_for('login') }}" >
+			<button class=grey style="height:75px;width:150px">Reassign Testers</button>
+		</a>
+	</p>
+	<p align="center">
+		<a href="{{ url_for('login') }}" >
+			<button class=grey style="height:75px;width:150px">View Appointsments</button>
+		</a>
+	</p>
+	<p align="center">
+		<a href="{{ url_for('login') }}" >
+			<button class=grey style="height:75px;width:150px">Create Appointments</button>
+		</a>
+	</p>
+	<p align="center">
+		<a href="{{ url_for('login') }}" >
+			<button class=grey style="height:75px;width:150px">Create Testing Site</button>
+		</a>
+	</p>
+	<p align="center">
+		<a href="{{ url_for('login') }}" >
+			<button class=grey style="height:75px;width:150px">View Daily Results</button>
+		</a>
+	</p>
+	<p align="center">
+		<a href="{{ url_for('login') }}" >
+			<button class=grey style="height:75px;width:150px">View Aggregate Results</button>
+		</a>
+	</p>
+{% endblock%}

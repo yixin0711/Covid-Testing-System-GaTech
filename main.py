@@ -298,5 +298,32 @@ def sitetester_home():
         error = "Invalid selection"
         return render_template("sitetester_home.html", error = error)
 
+@app.route("/admin_home", methods=("GET", "POST"))
+def admin_home():
+    """
+    Home screen for Admin:
+        Admin can:
+        a. Create available timeslots
+        b. View all appointments created so far
+        c. Reassign testers to a testing site
+        d. Create a new testing site
+        e. View aggregate test results
+        f. View daily test results
+    """
+    error = None
+    if 'change_site' in request.form:
+        return redirect(url_for("login"))
+    elif 'view_appt' in request.form:
+        return redirect(url_for("login"))
+    elif 'view_daily' in request.form:
+        return redirect(url_for("login"))
+    elif 'view_agg' in request.form:
+        return redirect(url_for("login"))
+    elif 'create_appt' in request.form:
+        return redirect(url_for("login"))
+    else:
+        error = "Invalid selection"
+        return render_template("admin_home.html", error = error)
+
 if __name__ == '__main__':
 	app.run(debug=True)
