@@ -10,3 +10,14 @@
 5. 输入 `git push`
 6. 在另一电脑端输入 `git pull`即可获得更新后的文件
 7. 注意将password改成自己本地的密码
+
+## User Examples
+1. Student: 
+    - username: `dkim99`
+    - password: `password38`
+2. Lab Technician:
+    - username: `ygao10`
+    - password: `password6`
+3. Site Tester:
+    - username: `mgrey91`
+    - password: `password15`
