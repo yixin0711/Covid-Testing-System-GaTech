@@ -227,16 +227,21 @@ def student_home():
         
     """
     error = None
-    if 'view_my' in request.form:
-        return redirect(url_for("login"))
-    elif 'sign_up' in request.form:
-        return redirect(url_for("login"))
-    elif 'view_daily' in request.form:
-        return redirect(url_for("login"))
-    elif 'view_agg' in request.form:
-        return redirect(url_for("login"))
+    if request.method == 'POST':
+        _instr = request.form['submit_button']
+        
+        if _instr == 'view_my':
+            return redirect(url_for("login"))
+        elif _instr == 'sign_up':
+            return redirect(url_for("login"))
+        elif  _instr == 'view_daily':
+            return redirect(url_for("login"))
+        elif  _instr == 'view_agg':
+            return redirect(url_for("login"))
+        else:
+            error = "Invalid selection"
+            return render_template("student_home.html", error = error)
     else:
-        error = "Invalid selection"
         return render_template("student_home.html", error = error)
 
 @app.route("/labtech_home", methods=("GET", "POST"))

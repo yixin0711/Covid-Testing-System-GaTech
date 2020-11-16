@@ -7,9 +7,30 @@
 
 {% block body%}
 	<h2> Site Tester Home </h2>
-	<button type="button" name="change_site"> Change Testing Site</button>
-	<button type="button" name="view_appt"> View Appointsments</button>
-	<button type="button" name="create_appt"> Create Appointsments</button>
-	<button type="button" name="view_agg"> View Aggregate Results</button>
-	<button type="button" name="view_daily"> View Daily Results</button>
+
+	<p align="center">
+		<a href="{{ url_for('login') }}" >
+			<button class=grey style="height:75px;width:150px">Change Testing Site</button>
+		</a>
+	</p>
+	<p align="center">
+		<a href="{{ url_for('login') }}" >
+			<button class=grey style="height:75px;width:150px">View Appointsments</button>
+		</a>
+	</p>
+	<p align="center">
+		<a href="{{ url_for('login') }}" >
+			<button class=grey style="height:75px;width:150px">Create Appointsments</button>
+		</a>
+	</p>
+	<p align="center">
+		<a href="{{ url_for('login') }}" >
+			<button class=grey style="height:75px;width:150px">View Daily Results</button>
+		</a>
+	</p>
+	<p align="center">
+		<a href="{{ url_for('login') }}" >
+			<button class=grey style="height:75px;width:150px">View Aggregate Results</button>
+		</a>
+	</p>
 {% endblock%}

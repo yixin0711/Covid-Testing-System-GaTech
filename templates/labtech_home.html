@@ -7,10 +7,35 @@
 
 {% block body%}
 	<h2> Lab Technician Home </h2>
-	<button type="button" name="process_pool"> Process Pool</button>
-	<button type="button" name="create_pool"> Create Pool</button>
-	<button type="button" name="view_pools"> View Pools</button>
-	<button type="button" name="view_my"> View My Processed Tests</button>
-	<button type="button" name="view_agg"> View Aggregate Results</button>
-	<button type="button" name="view_daily"> View Daily Results</button>
+	
+	<p align="center">
+		<a href="{{ url_for('login') }}" >
+			<button class=grey style="height:75px;width:150px">Process Pool</button>
+		</a>
+	</p>
+	<p align="center">
+		<a href="{{ url_for('login') }}" >
+			<button class=grey style="height:75px;width:150px">Create Pool</button>
+		</a>
+	</p>
+	<p align="center">
+		<a href="{{ url_for('login') }}" >
+			<button class=grey style="height:75px;width:150px">View My Processed Tests</button>
+		</a>
+	</p>
+	<p align="center">
+		<a href="{{ url_for('login') }}" >
+			<button class=grey style="height:75px;width:150px">View Pools</button>
+		</a>
+	</p>
+	<p align="center">
+		<a href="{{ url_for('login') }}" >
+			<button class=grey style="height:75px;width:150px">View Daily Results</button>
+		</a>
+	</p>
+	<p align="center">
+		<a href="{{ url_for('login') }}" >
+			<button class=grey style="height:75px;width:150px">View Aggregate Results</button>
+		</a>
+	</p>
 {% endblock%}

@@ -7,8 +7,26 @@
 
 {% block body%}
 	<h2> Student Home </h2>
-	<button type="button" name="view_my"> View My Results</button>
-	<button type="button" name="sign_up"> Sign Up for a Test</button>
-	<button type="button" name="view_daily"> View Daily Results</button>
-	<button type="button" name="view_agg"> View Aggregate Results</button>
+
+	<p align="center">
+		<a href="{{ url_for('login') }}" >
+			<button class=grey style="height:75px;width:150px">View My Results</button>
+		</a>
+	</p>
+	<p align="center">
+		<a href="{{ url_for('login') }}" >
+			<button class=grey style="height:75px;width:150px">Sign Up for a Test</button>
+		</a>
+	</p>
+	<p align="center">
+		<a href="{{ url_for('login') }}" >
+			<button class=grey style="height:75px;width:150px">View Daily Results</button>
+		</a>
+	</p>
+	<p align="center">
+		<a href="{{ url_for('login') }}" >
+			<button class=grey style="height:75px;width:150px">View Aggregate Results</button>
+		</a>
+	</p>
+
 {% endblock%}
