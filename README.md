@@ -21,3 +21,6 @@
 3. Site Tester:
     - username: `mgrey91`
     - password: `password15`
+4. Admin:
+    - username: `mmoss7`
+    - password: `password2`
