@@ -1,0 +1,15 @@
+{% extends 'layout.html' %}
+{% block title%} GT COVID-19 Testing {% endblock %}
+{% block link%} 
+	<a href="{{ url_for('index') }}"> Return to Home Page </a> 
+	<a href="{{ url_for('login') }}"> Log out </a> 
+{%  endblock%}
+
+{% block body%}
+	<h2> Site Tester Home </h2>
+	<button type="button" name="change_site"> Change Testing Site</button>
+	<button type="button" name="view_appt"> View Appointsments</button>
+	<button type="button" name="create_appt"> Create Appointsments</button>
+	<button type="button" name="view_agg"> View Aggregate Results</button>
+	<button type="button" name="view_daily"> View Daily Results</button>
+{% endblock%}

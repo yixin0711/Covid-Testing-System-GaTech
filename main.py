@@ -108,13 +108,13 @@ def login():
                 cursor.execute('select * from sitetester where sitetester_username = %s', (_username,))
                 sitetester = cursor.fetchone()
 
-                if len(labtech) == 0 and len(sitetester) != 0:
+                if labtech and not sitetester:
                     session['user_id'] = labtech[0]
                     return redirect(url_for('labtech_home'))
-                elif len(labtech) != 0 and len(sitetester) == 0:
+                elif not labtech and sitetester:
                     session['user_id'] = sitetester[0]
                     return redirect(url_for('sitetester_home'))
-                elif len(labtech) != 0 and len(sitetester) != 0:
+                elif labtech and sitetester:
                     session['user_id'] = labtech[0]
                     return redirect(url_for('labtech_sitetester_home'))
                 else: 
@@ -213,6 +213,86 @@ def register():
             return redirect(url_for("login"))
 
     return render_template("register.html", error = error)
+
+#screen 3: home screens
+@app.route("/student_home", methods=("GET", "POST"))
+def student_home():
+    """
+    Home screen for student:
+        A student can:
+            a. View all their test results
+            b. Get tested/sign up for a timeslot
+            c. View aggregate test results
+            d. View daily test results
+        
+    """
+    error = None
+    if 'view_my' in request.form:
+        return redirect(url_for("login"))
+    elif 'sign_up' in request.form:
+        return redirect(url_for("login"))
+    elif 'view_daily' in request.form:
+        return redirect(url_for("login"))
+    elif 'view_agg' in request.form:
+        return redirect(url_for("login"))
+    else:
+        error = "Invalid selection"
+        return render_template("student_home.html", error = error)
+
+@app.route("/labtech_home", methods=("GET", "POST"))
+def labtech_home():
+    """
+    Home screen for lab technician:
+        A Lab Technician can:
+            a. Process a pool
+            b. Create a pool
+            c. View all pools
+            d. View tests I have processed
+            e. View aggregate test results
+            f. View daily test results
+    """
+    error = None
+    if 'view_my' in request.form:
+        return redirect(url_for("login"))
+    elif 'view_pools' in request.form:
+        return redirect(url_for("login"))
+    elif 'view_daily' in request.form:
+        return redirect(url_for("login"))
+    elif 'view_agg' in request.form:
+        return redirect(url_for("login"))
+    elif 'process_pool' in request.form:
+        return redirect(url_for("login"))
+    elif 'create_pool' in request.form:
+        return redirect(url_for("login"))
+    else:
+        error = "Invalid selection"
+        return render_template("labtech_home.html", error = error)
+
+@app.route("/sitetester_home", methods=("GET", "POST"))
+def sitetester_home():
+    """
+    Home screen for Tester:
+        A Tester can:
+            a. Change their testing site
+            b. View apspointments for the site they work at
+            c. Create an appointment for their testing site
+            d. View aggregate test results
+            e. View daily test results
+    """
+    error = None
+    if 'change_site' in request.form:
+        return redirect(url_for("login"))
+    elif 'view_appt' in request.form:
+        return redirect(url_for("login"))
+    elif 'view_daily' in request.form:
+        return redirect(url_for("login"))
+    elif 'view_agg' in request.form:
+        return redirect(url_for("login"))
+    elif 'create_appt' in request.form:
+        return redirect(url_for("login"))
+    else:
+        error = "Invalid selection"
+        return render_template("sitetester_home.html", error = error)
 
 if __name__ == '__main__':
 	app.run(debug=True)
