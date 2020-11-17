@@ -24,3 +24,6 @@
 4. Admin:
     - username: `mmoss7`
     - password: `password2`
+5. Lab Tech/Site Tester:
+    - username: `xyi38`
+    - password: `password110`
