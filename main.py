@@ -32,10 +32,11 @@ app.config['MYSQL_DATABASE_USER'] = 'root'
 app.config['MYSQL_DATABASE_PASSWORD'] = '680212ok'       #your password here
 app.config['MYSQL_DATABASE_DB'] = 'covidtest_fall2020'
 app.config['MYSQL_DATABASE_HOST'] = 'localhost'
-mysql.init_app(app)
 
+mysql.init_app(app)
 conn = mysql.connect()
 cursor = conn.cursor()
+
 # ============================ Basic Setup ============================
 
 # ============================ Basic Syntax for MySQL ============================
@@ -69,13 +70,15 @@ def login():
     All users are using the same login page.
     Different users may redirect to different home screen.
     """
+    
     error = None
+
     if request.method == 'POST':
                 
         _username = request.form['username']
         _password = request.form['password']
         
-        cursor.execute('select * from user where username = %s', (_username,))
+        cursor.execute('select * from user where username = %s', (_username))
         user = cursor.fetchone()
         
         error = None
@@ -138,6 +141,7 @@ def register():
     Hashes the password for security.
     """
     error = None
+
     if request.method == "POST":
         _username = request.form["username"]
         _password = request.form["password"]
@@ -182,33 +186,39 @@ def register():
             # the name is available, store it in the database and go to
             # the login page
             _select_user = request.form.get('utypes')
-            if str(_select_user) == 'Student' or str(_select_user) == 'Employee':
-                cursor.execute(
-                    "INSERT INTO user (username, user_password, email, fname, lname) VALUES (%s, %s, %s, %s, %s)",
-                    (_username, _password, _email, _fname, _lname),
-                )
+
+            if str(_select_user) == 'Student':
+                _select_house = str(request.form.get('htypes'))
+                _select_location = str(request.form.get('ltypes'))
                 
-                cursor.commit()
-                if str(_select_user) == 'Student':
-                    _select_house = str(request.form.get('htypes'))
-                    _select_location = str(request.form.get('ltypes'))
-                    cursor.callproc('register_student', (_username, _email, _fname, _lname, _select_location, _select_house, _password))
-                    cursor.commit()
-                elif str(_select_user) == 'Employee':
-                    _phone_num = request.form['phone']                    
-                    is_site_tester = request.form.get('site_tester')
-                    is_lab_tech = request.form.get('lab_tech')
-                    
-                    if not is_site_tester and not is_lab_tech:
-                        error = "You much select the checkbox."
-                        return render_template("register.html", error = error)
-                    
-                    cursor.callproc('register_employee', (_username, _email, _fname, _lname, _phone_num, is_site_tester, is_lab_tech, _password))
-                    cursor.commit()
-                        
-                else:
-                    error = "You much select a user type."
+                try:
+                    cursor.callproc('register_student', (_username, _email, _fname, _lname, _select_location, _select_house, _password,))
+                    conn.commit()
+
+                except Exception as e:
+                    error = str(e)
                     return render_template("register.html", error = error)
+                
+            elif str(_select_user) == 'Employee':
+                _phone_num = str(request.form['phone'])                  
+                is_site_tester = bool(request.form.get('site_tester'))
+                is_lab_tech = bool(request.form.get('lab_tech'))
+                    
+                if not is_site_tester and not is_lab_tech:
+                    error = "You much select the checkbox."
+                    return render_template("register.html", error = error)
+                
+                try:
+                    cursor.callproc('register_employee', (_username, _email, _fname, _lname, _phone_num, is_site_tester, is_lab_tech, _password,))
+                    conn.commit()
+
+                except Exception as e:
+                    error = str(e)
+                    return render_template("register.html", error = error)
+                
+            else:
+                error = "You much select a user type."
+                return render_template("register.html", error = error)
             return redirect(url_for("login"))
 
     return render_template("register.html", error = error)
@@ -324,6 +334,28 @@ def admin_home():
     else:
         error = "Invalid selection"
         return render_template("admin_home.html", error = error)
+
+@app.route("/labtech_sitetester_home", methods=("GET", "POST"))
+def labtech_sitetester_home():
+    """
+    Home screen for Lab Technician / Site Tester:
+        A Lab Tech/Tester can:
+            Do any functionality associated with a Lab Technician or a Tester
+    """
+    error = None
+    if 'change_site' in request.form:
+        return redirect(url_for("login"))
+    elif 'view_appt' in request.form:
+        return redirect(url_for("login"))
+    elif 'view_daily' in request.form:
+        return redirect(url_for("login"))
+    elif 'view_agg' in request.form:
+        return redirect(url_for("login"))
+    elif 'create_appt' in request.form:
+        return redirect(url_for("login"))
+    else:
+        error = "Invalid selection"
+        return render_template("labtech_sitetester_home.html", error = error)
 
 if __name__ == '__main__':
 	app.run(debug=True)
