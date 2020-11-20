@@ -1,0 +1,52 @@
+{% extends 'layout.html' %}
+
+{% block title%} GT COVID-19 Testing {% endblock%}
+{% block link%}
+	<a href="{{ url_for('index')}}"> Return to Home Page   </a>|
+	<a href="{{ url_for('admin_home')}}"> Back   </a>|
+	<a href="{{ url_for('login')}}"> Log out </a>
+{% endblock%}
+
+{% block body %}
+	<h2> Create a Testing Site </h2>
+	{% if error %}
+	<div class = error>
+	  <strong>Error : </strong> {{error}}
+	</div>
+	{% endif%}
+	<dl>
+	    <dt>Site Name: </dt>
+	    <dd><input type=text name=name size=30 value="{{ request.form.username}}"> </dd>
+	    <dt>Street:	 </dt>
+	    <dd><input type=text name=email size=30> </dd>
+	    <dt>City:	 </dt>
+	    <dd><input type=text name=fname size=30> </dd>
+	<p>State:
+	  <select id="stateType" name = "state">
+	  	    <option value="select1">--Select--</option>
+      		<option value="ga">GA</option>
+      		<option value="ca">CA</option>
+    	</select>
+      </p>
+	</dl>
+	    <dt>Zip:	 </dt>
+	    <dd><input type=text name=lname size=30> </dd>
+	  </dl>
+     <p>Locaton:
+      <select id="locationTypes" name = "ltypes">
+      		<option value="select3">--Select--</option>
+      		<option value="East">East</option>
+      		<option value="West">West</option>
+    	</select>
+      </p>
+      <p>First Tester:<select name = 'tester'> 
+	{% for c in tester_list %}
+	<OPTION value={{c}}>{{c}}</option>
+	{% endfor %}
+	</SELECT>
+      </p>
+	  <div class=actions>
+	    <input type=submit value="Create">
+	  </div>
+	</form>
+{% endblock %}

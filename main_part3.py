@@ -17,6 +17,8 @@ from flask import Flask, request, session, url_for, redirect, \
 from flaskext.mysql import MySQL
 from werkzeug.security import generate_password_hash, check_password_hash
 
+import itertools
+
 # ============================ Basic Setup ============================
 
 app = Flask(__name__)
@@ -334,32 +336,81 @@ def admin_home():
         return redirect(url_for("login"))
     elif 'create_appt' in request.form:
         return redirect(url_for("login"))
+    elif 'create_site' in request.form:
+        return redirect(url_for("admin_create_site"))
     else:
         error = "Invalid selection"
         return render_template("admin_home.html", error = error)
 
-@app.route("/admin/reassign", methods=("GET", "POST"))
-def admin_reassign():
+#screen 15
+@app.route("/admin_create_site", methods=("GET", "POST"))
+def admin_create_site():
     """
-    Home screen for Lab Technician / Site Tester:
-        A Lab Tech/Tester can:
-            Do any functionality associated with a Lab Technician or a Tester
+    This screen is for an Admin to create a testing sites.
     """
     error = None
-    if 'change_site' in request.form:
-        return redirect(url_for("login"))
-    elif 'view_appt' in request.form:
-        return redirect(url_for("login"))
-    elif 'view_daily' in request.form:
-        return redirect(url_for("login"))
-    elif 'view_agg' in request.form:
-        return redirect(url_for("login"))
-    elif 'create_appt' in request.form:
-        return redirect(url_for("login"))
+    testers = get_tester()
+    
+    if request.method == "POST":
+        _site_name = request.form["name"]
+        _street = request.form["street"]
+        _city = request.form['city']
+        _state = request.form.get('state')
+        _zip = request.form['zip']
+        _location = request.form.get('location')
+        _tester = request.form.get('tester')
+        
+        if not _site_name or not _street or not _city or not _zip:
+            error = "All field are required."
+        elif _state == 'select1':
+            error = "State is required."
+        elif _location == '--select--':
+            error = "Location is required."
+        elif _tester == '--select--':
+            error = "A site cannot be created without at least one tester."
+    
+    if error is None:
+        try:
+            cursor.callproc('create_testing_site', 
+                            (_site_name, 
+                             _street, 
+                             _city,
+		                     _state, 
+	    	                 _zip, 
+		                     _location, 
+		                     _tester,))
+            conn.commit()
+            return redirect(url_for('admin_create_site'))
+        
+        except Exception as e:
+            error = str(e)
+            return render_template("admin_create_site.html", error = error, tester_list = testers)
     else:
-        error = "Invalid selection"
-        return render_template("labtech_sitetester_home.html", error = error)
+        return render_template("admin_create_site.html", error = error, tester_list = testers)
 
+#screen 16
+@app.route("/labtech_view_pool", methods=("GET", "POST"))
+def labtech_view_pool():
+    """
+    This screen allows the user to look into an already processed pool.
+    """
+    error = None
+    
+    _pool_id = '1'
+    cursor.callproc('pool_metadata', (_pool_id,))
+    pool_data = cursor.fetchall()
+
+    cursor.callproc('tests_in_pool', (_pool_id,))
+    tests_data = cursor.fetchall()
+    
+    return render_template("login.html", pool = pool_data, tests = tests_data)
+    
+
+
+def get_tester():
+    cursor.execute('select concat(fname, " ",lname) as name from user where username in (select * from sitetester)')
+    tester = cursor.fetchall()
+    return list(itertools.chain(*tester))
 
 if __name__ == '__main__':
 	app.run(debug=True)
