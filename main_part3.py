@@ -338,8 +338,8 @@ def admin_home():
         error = "Invalid selection"
         return render_template("admin_home.html", error = error)
 
-@app.route("/labtech_sitetester_home", methods=("GET", "POST"))
-def labtech_sitetester_home():
+@app.route("/admin/reassign", methods=("GET", "POST"))
+def admin_reassign():
     """
     Home screen for Lab Technician / Site Tester:
         A Lab Tech/Tester can:
@@ -360,5 +360,8 @@ def labtech_sitetester_home():
         error = "Invalid selection"
         return render_template("labtech_sitetester_home.html", error = error)
 
+
 if __name__ == '__main__':
 	app.run(debug=True)
+    
+    
