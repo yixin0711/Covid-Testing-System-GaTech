@@ -228,6 +228,18 @@ def register():
 
     return render_template("register.html", error = error)
 
+
+@app.route('/logout')
+def logout():
+	session.pop('user_id', None)
+	return redirect(url_for('index'))
+
+# 添加简单的安全性检查
+def user_judge():
+	if not session['user_id']:
+		error = 'Invalid User, please login'
+		return render_template('login.html', error = error)
+
 #screen 3: home screens
 @app.route("/student_home", methods=("GET", "POST"))
 def student_home():
@@ -384,30 +396,44 @@ def admin_create_site():
         
         except Exception as e:
             error = str(e)
-            return render_template("admin_create_site.html", error = error, tester_list = testers)
-    else:
-        return render_template("admin_create_site.html", error = error, tester_list = testers)
+    
+    return render_template("admin_create_site.html", error = error, tester_list = testers)
 
-#screen 16
-@app.route("/labtech_view_pool", methods=("GET", "POST"))
-def labtech_view_pool():
+#screen 16 (和screen 9连接)
+@app.route("/labtech/viewpool/<id>", methods=("GET", "POST"))
+def labtech_viewpool(id):
     """
     This screen allows the user to look into an already processed pool.
     """
-    error = None
-    
-    _pool_id = '1'
-    cursor.callproc('pool_metadata', (_pool_id,))
-    pool_data = cursor.fetchall()
+    user_judge()
+    if request.method == 'POST':
+        _pool_id = id
+        cursor.callproc('pool_metadata', (_pool_id,))
+        pool_data = cursor.fetchall()
 
-    cursor.callproc('tests_in_pool', (_pool_id,))
-    tests_data = cursor.fetchall()
-    
+        cursor.callproc('tests_in_pool', (_pool_id,))
+        tests_data = cursor.fetchall()
+        return redirect(url_for('latech_viewpool', id = id))
     return render_template("login.html", pool = pool_data, tests = tests_data)
-    
 
+
+#screen 18 (和screen 9连接)
+@app.route("/daily", methods=("GET", "POST"))
+def daily():
+    """
+    This screen shows testing statistics grouped by processing date
+    """
+    user_judge()
+    cursor.callproc('daily_results')
+    daily_data = cursor.fetchall()
+    return render_template("daily.html", results = daily_data)
 
 def get_tester():
+    cursor.execute('select concat(fname, " ",lname) as name from user where username in (select * from sitetester)')
+    tester = cursor.fetchall()
+    return list(itertools.chain(*tester))
+
+def get_housing():
     cursor.execute('select concat(fname, " ",lname) as name from user where username in (select * from sitetester)')
     tester = cursor.fetchall()
     return list(itertools.chain(*tester))

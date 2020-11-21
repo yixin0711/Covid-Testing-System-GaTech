@@ -1,0 +1,26 @@
+{% extends 'layout.html' %}
+{% block title%} GT COVID-19 Testing {% endblock %}
+{% block link%} 
+	<a href="{{ url_for('login') }}"> Return to Home Page </a> | 
+	<a href="{{ url_for('login') }}"> Back (Home) </a> |
+	<a href="{{ url_for('login') }}"> Log Out </a> 
+{%  endblock%}
+{% block body%}
+	<h2> View Daily Results </h2>
+	<table width="600" border="1", align="center">
+	  <tr>
+	    <th align="center"> Date </th>
+	    <th align="center"> Tests Processed </th>
+	    <th align="center"> Positive Count</th>
+	    <th align="centet"> Positive Percent </th>
+	  </tr>
+	  {% for result in results%}
+	  <tr>
+	    <th align="center"> {{result[0]}}</th>
+	    <th align="center"> {{result[1]}} </th>
+	    <th align="center"> {{result[2]}}</th>
+	    <th align="centet"> {{result[3]}} </th>
+	  </tr>
+	  {% endfor %}
+	</table>
+{% endblock%}
