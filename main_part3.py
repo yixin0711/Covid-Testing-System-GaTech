@@ -39,8 +39,6 @@ mysql.init_app(app)
 conn = mysql.connect()
 cursor = conn.cursor()
 
-# ============================ Basic Setup ============================
-
 # ============================ Basic Syntax for MySQL ============================
 # execute query
 # cursor.execute('select * from user where username = %s', (_username,))
@@ -53,6 +51,144 @@ cursor = conn.cursor()
 # if len(data) is 0 then success
 # data = cursor.fetchall()
 
+# ============================ Helper functions ================
+
+def get_tester():
+    """
+    This function returns a list of testers's First name and Last name, 
+    i.e. 'John Smith'
+    """
+    cursor.execute('select concat(fname, " ",lname) as name from user where username in (select * from sitetester)')
+    tester = cursor.fetchall()
+    return list(itertools.chain(*tester))
+
+def get_housing():
+    """
+    This function returns a list of housing types, 
+    i.e. 'Off-campus Apartment'
+    """
+    cursor.execute('select distinct housing_type from student')
+    types = cursor.fetchall()
+    return list(itertools.chain(*types))
+
+def get_location():
+    """
+    This function returns a list of location, 
+    i.e. 'West'
+    """
+    cursor.execute('select distinct location from student')
+    location = cursor.fetchall()
+    return list(itertools.chain(*location))
+
+def get_states():
+    """
+    This function returns a list of US States, 
+    i.e. 'West'
+    """
+    states = ["AL", "AK", "AZ", "AR", "CA", "CO", "CT", "DC", "DE", "FL", "GA", 
+          "HI", "ID", "IL", "IN", "IA", "KS", "KY", "LA", "ME", "MD", 
+          "MA", "MI", "MN", "MS", "MO", "MT", "NE", "NV", "NH", "NJ", 
+          "NM", "NY", "NC", "ND", "OH", "OK", "OR", "PA", "RI", "SC", 
+          "SD", "TN", "TX", "UT", "VT", "VA", "WA", "WV", "WI", "WY"]
+    return states
+
+def is_student(username):
+    """
+    This function check if a user name is a student or not
+    Return: 
+        Bool (result)
+    """
+    
+    result = False
+    cursor.execute('select * from student where student_username = %s', (username,))
+    student = cursor.fetchone()
+    if student:
+        result = True
+    return result, student
+
+def is_admin(username):
+    """
+    This function check if a user name is an administrator or not
+    Return: 
+        Bool (result)
+    """
+    
+    result = False
+    cursor.execute('select * from administrator where admin_username = %s', (username,))
+    admin = cursor.fetchone()
+    if admin:
+        result = True
+    return result, admin
+
+def is_labtech(username):
+    """
+    This function check if a user name is a lab technician or not
+    Return: 
+        Bool (result)
+    """
+    
+    result = False
+    cursor.execute('select * from labtech where labtech_username = %s', (username,))
+    labtech = cursor.fetchone()
+    if labtech:
+        result = True
+    return result, labtech
+
+def is_tester(username):
+    """
+    This function check if a user name is a tester or not
+    Return: 
+        Bool (result)
+    """
+    
+    result = False
+    cursor.execute('select * from sitetester where sitetester_username = %s', (username,))
+    tester = cursor.fetchone()
+    if tester:
+        result = True
+    return result, tester
+
+def is_employee(username):
+    """
+    This function check if a user name is a employee or not
+    Return: 
+        Bool (result)
+    """
+    
+    result = False
+    cursor.execute('select * from employee where emp_username = %s', (username,))
+    emp = cursor.fetchone()
+    if emp:
+        result = True
+    return result, emp
+
+def is_user(username):
+    """
+    This function check if a user name is a user or not
+    Return: 
+        Bool (result)
+    """
+    result = False
+    cursor.execute('select * from user where username = %s', (username))
+    user = cursor.fetchone()
+    if user:
+        result = True
+    return result, user
+
+# 添加简单的安全性检查
+def user_judge():
+	if not session['user_id']:
+		error = 'Invalid User, please login'
+		return render_template('login.html', error = error)
+
+
+@app.route('/logout')
+def logout():
+	session.pop('user_id', None)
+	return redirect(url_for('index'))
+
+
+# ========================= Functional Screens =========================
 #screen 0: home page
 @app.route('/')
 def index():
@@ -83,8 +219,7 @@ def login():
         _username = request.form['username']
         _password = request.form['password']
         
-        cursor.execute('select * from user where username = %s', (_username))
-        user = cursor.fetchone()
+        user_bool, user = is_user(_username)
         
         error = None
         
@@ -95,39 +230,31 @@ def login():
     
         if error is None:
         
-            cursor.execute('select * from student where student_username = %s', (_username,))
-            student = cursor.fetchone()
-        
-            cursor.execute('select * from employee where emp_username = %s', (_username,))
-            emp = cursor.fetchone()
-        
-            cursor.execute('select * from administrator where admin_username = %s', (_username,))
-            admin = cursor.fetchone()
-        
-            if student:
+            student_bool, student = is_student(_username)
+            admin_bool, admin = is_admin(_username)
+            emp_bool, emp = is_employee(_username)
+            
+            if student_bool:
                 session['user_id'] = student[0]
                 return redirect(url_for('student_home'))
             
-            elif emp:
-                cursor.execute('select * from labtech where labtech_username = %s', (_username,))
-                labtech = cursor.fetchone()
-            
-                cursor.execute('select * from sitetester where sitetester_username = %s', (_username,))
-                sitetester = cursor.fetchone()
+            elif emp_bool:
+                labtech_bool, labtech = is_labtech(_username)
+                tester_bool, tester = is_tester(_username)
 
-                if labtech and not sitetester:
+                if labtech_bool and not tester_bool:
                     session['user_id'] = labtech[0]
                     return redirect(url_for('labtech_home'))
-                elif not labtech and sitetester:
-                    session['user_id'] = sitetester[0]
+                elif not labtech_bool and tester_bool:
+                    session['user_id'] = tester[0]
                     return redirect(url_for('sitetester_home'))
-                elif labtech and sitetester:
+                elif labtech_bool and tester_bool:
                     session['user_id'] = labtech[0]
                     return redirect(url_for('labtech_sitetester_home'))
                 else: 
                     error = 'Cannot find user'
             
-            elif admin:
+            elif admin_bool:
                 session['user_id'] = admin[0]
                 return redirect(url_for('admin_home'))
             
@@ -363,6 +490,11 @@ def admin_create_site():
     error = None
     testers = get_tester()
     
+    _is_admin, _ = is_admin(session['user_id'])
+    if not _is_admin:
+        error = 'You do not have access to this page.'
+        return render_template('login.html', error = error)
+    
     if request.method == "POST":
         _site_name = request.form["name"]
         _street = request.form["street"]
@@ -405,7 +537,11 @@ def labtech_viewpool(id):
     """
     This screen allows the user to look into an already processed pool.
     """
-    user_judge()
+    _is_labtech, _ = is_labtech(session['user_id'])
+    if not _is_labtech:
+        error = 'You do not have access to this page.'
+        return render_template('login.html', error = error)
+        
     if request.method == 'POST':
         _pool_id = id
         cursor.callproc('pool_metadata', (_pool_id,))
@@ -428,15 +564,6 @@ def daily():
     daily_data = cursor.fetchall()
     return render_template("daily.html", results = daily_data)
 
-def get_tester():
-    cursor.execute('select concat(fname, " ",lname) as name from user where username in (select * from sitetester)')
-    tester = cursor.fetchall()
-    return list(itertools.chain(*tester))
-
-def get_housing():
-    cursor.execute('select concat(fname, " ",lname) as name from user where username in (select * from sitetester)')
-    tester = cursor.fetchall()
-    return list(itertools.chain(*tester))
 
 if __name__ == '__main__':
 	app.run(debug=True)
