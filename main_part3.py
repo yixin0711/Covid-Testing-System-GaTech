@@ -180,16 +180,16 @@ def user_judge():
 	if not session['user_id']:
 		error = 'Invalid User, please login'
 		return render_template('login.html', error = error)
-
-
-@app.route('/logout')
-def logout():
-	session.pop('user_id', None)
-	return redirect(url_for('index'))
-
+    
+@app.before_request
+def before_request():
+	g.user = None
+	if 'user_id' in session:
+		g.user = session['user_id']
 
 # ========================= Functional Screens =========================
 #screen 0: home page
+        
 @app.route('/')
 def index():
     
@@ -384,7 +384,8 @@ def student_home():
         _instr = request.form['submit_button']
         
         if _instr == 'view_my':
-            return redirect(url_for("login"))
+            id = session['user_id']
+            return redirect(url_for("view", id = id))
         elif _instr == 'sign_up':
             return redirect(url_for("login"))
         elif  _instr == 'view_daily':
@@ -452,6 +453,28 @@ def sitetester_home():
         error = "Invalid selection"
         return render_template("sitetester_home.html", error = error)
 
+@app.route("/labtech_sitetester_home", methods=("GET", "POST"))
+def labtech_sitetester_home():
+    """
+    Home screen for Lab Technician / Site Tester:
+        A Lab Tech/Tester can:
+            Do any functionality associated with a Lab Technician or a Tester
+    """
+    error = None
+    if 'change_site' in request.form:
+        return redirect(url_for("login"))
+    elif 'view_appt' in request.form:
+        return redirect(url_for("login"))
+    elif 'view_daily' in request.form:
+        return redirect(url_for("login"))
+    elif 'view_agg' in request.form:
+        return redirect(url_for("login"))
+    elif 'create_appt' in request.form:
+        return redirect(url_for("login"))
+    else:
+        error = "Invalid selection"
+        return render_template("labtech_sitetester_home.html", error = error)
+    
 @app.route("/admin_home", methods=("GET", "POST"))
 def admin_home():
     """
@@ -482,13 +505,15 @@ def admin_home():
         return render_template("admin_home.html", error = error)
 
 #screen 15
-@app.route("/admin_create_site", methods=("GET", "POST"))
-def admin_create_site():
+@app.route("/admin/createsite", methods=("GET", "POST"))
+def admin_createsite():
     """
     This screen is for an Admin to create a testing sites.
     """
     error = None
     testers = get_tester()
+    states = get_states()
+    locations = get_location()
     
     _is_admin, _ = is_admin(session['user_id'])
     if not _is_admin:
@@ -512,6 +537,12 @@ def admin_create_site():
             error = "Location is required."
         elif _tester == '--select--':
             error = "A site cannot be created without at least one tester."
+        
+        names = _tester.split()
+        cursor.execute('select username from user where fname = %s and lname = %s', (names[0], names[1],))
+        _username = cursor.fetchone()[0]
+        if not _username:
+            error = "Site Tester does not exist."
     
     if error is None:
         try:
@@ -522,14 +553,17 @@ def admin_create_site():
 		                     _state, 
 	    	                 _zip, 
 		                     _location, 
-		                     _tester,))
+		                     _username,))
             conn.commit()
-            return redirect(url_for('admin_create_site'))
+            return redirect(url_for('admin_createsite'))
         
         except Exception as e:
             error = str(e)
     
-    return render_template("admin_create_site.html", error = error, tester_list = testers)
+    return render_template("admin_createsite.html", error = error, 
+                           tester_list = testers, 
+                           state_list = states,
+                           location_list = locations)
 
 #screen 16 (和screen 9连接)
 @app.route("/labtech/viewpool/<id>", methods=("GET", "POST"))
@@ -545,15 +579,17 @@ def labtech_viewpool(id):
     if request.method == 'POST':
         _pool_id = id
         cursor.callproc('pool_metadata', (_pool_id,))
+        cursor.execute('select * from pool_metadata_result')
         pool_data = cursor.fetchall()
 
         cursor.callproc('tests_in_pool', (_pool_id,))
+        cursor.execute('select * from tests_in_pool_result')
         tests_data = cursor.fetchall()
         return redirect(url_for('latech_viewpool', id = id))
     return render_template("login.html", pool = pool_data, tests = tests_data)
 
 
-#screen 18 (和screen 9连接)
+#screen 18
 @app.route("/daily", methods=("GET", "POST"))
 def daily():
     """
@@ -561,6 +597,7 @@ def daily():
     """
     user_judge()
     cursor.callproc('daily_results')
+    cursor.execute('select * from daily_results_result')
     daily_data = cursor.fetchall()
     return render_template("daily.html", results = daily_data)
 

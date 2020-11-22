@@ -2,7 +2,7 @@
 {% block title%} GT COVID-19 Testing {% endblock %}
 {% block link%} 
 	<a href="{{ url_for('index') }}"> Return to Home Page </a>|
-	<a href="{{ url_for('login') }}"> Log out </a> 
+	<a href="{{ url_for('logout')}}"> Log Out [{{ g.user}}]</a>
 {%  endblock%}
 
 {% block body%}
