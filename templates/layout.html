@@ -1,16 +1,47 @@
 <!doctype html>
-<title> {% block title %} Georgia Tech COVID-19 Testing System {% endblock %} </title>
-<link rel=stylesheet type=text/css href="{{ url_for('static', filename='style.css') }}">
-<div class=page>
-  <h1>Georgia Tech COVID-19 Testing System</h1>
-  <div class=navigation>
-    {% block link %}{% endblock %}
-  </div>
-  <div class=body>
-    {% block body %}{% endblock %}
-   </div>
-  <div class=footer>
-     &mdash; Team 59: Qingyuan Deng, Runze Yang, Xin Yi
-  </div>
-</div>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+    <title> {% block title %} Georgia Tech COVID-19 Testing System {% endblock %} </title>
+    <style>
+		table {
+            border-collapse: collapse;
+            font-family: Futura, Arial, sans-serif;
+            margin-left:auto;
+            margin-right:auto;
+        }
+        caption {
+            font-size: larger;
+            margin: 1em auto;
+        }
+        th,td {
+            padding: .65em;
+        }
+        th {
+            background: #555 none repeat scroll 0 0;
+            border: 1px solid #777;
+            color: #fff;
+        }
+        td {
+            border: 1px solid#777;
+        }
+        tbody tr:nth-child(odd) {
+            background: #ccc;
+        }
+	</style>
+
+    <link rel=stylesheet type=text/css href="{{ url_for('static', filename='style.css') }}">
+    <div class=page>
+      <h1>Georgia Tech COVID-19 Testing System</h1>
+      <div class=navigation>
+        {% block link %}{% endblock %}
+      </div>
+      <div class=body>
+        {% block body %}{% endblock %}
+       </div>
+      <div class=footer>
+         &mdash; Team 59: Qingyuan Deng, Runze Yang, Xin Yi
+      </div>
+    </div>
+</head>
     
