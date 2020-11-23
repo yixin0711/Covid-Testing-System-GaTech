@@ -1,0 +1,50 @@
+{% extends "layout.html" %}
+{% block title%} View Pools {% endblock%}
+{% block link%}
+    <a href="{{ url_for('index')}}"> Return to Home Page </a>|
+{% endblock%}
+{% block body %}
+
+
+    <h2 style="text-align: center;"> View Pools </h2>
+    <form id="form1", action="" method=post>
+      <dl>
+        <dt>Date Processed: <input type=text name=begin_process_date value="{{ request.form.begin_process_date}}" size=10> - <input type=text name=end_process_date value="{{ request.form.end_process_date}}" size=10> </dt>
+      </dl>
+      <dl>
+          <dt>Pool Status: <select id="userType" name = "utypes" onchange="getData(this);" >
+          <option value="ALL">ALL</option>
+          <option value="Positive"> Positive </option>
+          <option value="Negative">Negative</option>
+          </select>
+          <dt>
+      </dl>
+      <dl>
+        <dt>Processed By: <input type=text name=processed_by size=10 value="{{ request.form.processed_by}}"> </dt>
+      </dl>
+      <table>
+        <thead>
+            <tr align="center">
+                <th>Pool ID
+                <th>Test Ids
+                <th>Date Processed
+                <th>Processed By
+                <th>Pool Status
+        </thead>
+        <tbody>
+            {% for i in l %}
+            <tr align="center">
+                <td>{{ data['pool_id'][i] }}
+                <td>{{ data['test_id'][i] }}
+                <td>{{ data['date_processed'][i] }}
+                <td>{{ data['processed_by'][i] }}
+                <td>{{ data['pool_status'][i] }}
+            </tr>
+            {% endfor %}
+      </table>
+      <button id="btn">Filter</button>
+
+    </form>
+
+{% endblock %}
+
