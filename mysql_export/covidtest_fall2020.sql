@@ -234,14 +234,11 @@ BEGIN
         appt_date date,
         appt_time time,
         street VARCHAR (40),
-        city VARCHAR(40),
-        state VARCHAR(2),
-        zip VARCHAR(5),
         site_name VARCHAR(40));
     INSERT INTO test_sign_up_filter_result
 
     -- Type solution below
-	select distinct appt_date,appt_time,street,city,state,zip,a.site_name from appointment a
+	select distinct appt_date,appt_time,s.street,s.site_name from appointment a
 	left join site s on a.site_name=s.site_name
 	where (i_testing_site=a.site_name or i_testing_site is NULL)
 	and (i_start_date<=a.appt_date OR i_start_date is NULL)
@@ -257,6 +254,9 @@ BEGIN
     END //
     DELIMITER ;
 -- CALL test_sign_up_filter('gburdell1', 'North Avenue (Centenial Room)', NULL, '2020-10-06', NULL, NULL);
+-- CALL test_sign_up_filter('gburdell1', NULL, NULL, NULL, NULL, NULL);
+-- CALL test_sign_up_filter('mgeller3', NULL, NULL, NULL, NULL, NULL);
+
 
 -- ID: 7b
 -- Author: lvossler3

@@ -14,10 +14,11 @@ from hashlib import md5
 from datetime import datetime
 
 from flask import Flask, request, session, url_for, redirect, \
-	 render_template, abort, g, flash, _app_ctx_stack
+	 render_template, abort, g, flash, _app_ctx_stack,get_flashed_messages
 from flaskext.mysql import MySQL
 from werkzeug.security import generate_password_hash, check_password_hash
 import itertools
+import random
 
 # ============================ Basic Setup ============================
 
@@ -629,6 +630,7 @@ def aggregrate_test_results():
 # screen 7: connect to screen 3: student home
 @app.route("/student_home/signup_for_a_test", methods=("GET", "POST"))
 def signup_for_a_test():
+    error=None
     site=get_testing_site()
     _username=session['user_id']
     if request.method == "POST":
@@ -653,15 +655,41 @@ def signup_for_a_test():
 
         elif  _instr == "Reset":
             _testing_site,_start_date,_end_date,_start_time,_end_time,flag=None,None,None,None,None,0
-            
+        
+        elif _instr == "Sign up":
+            _testing_site,_start_date,_end_date,_start_time,_end_time,flag=None,None,None,None,None,0
+            if request.form.get("clickIn") is not None:
+                sql="select count(*) from test;"
+                cursor.execute(sql)
+                count_test=cursor.fetchone()
+                row=request.form["clickIn"]
+                row=row.split(',')
+                _appt_date=str(row[0])
+                _appt_time=str(row[1])
+                _site_name=str(row[3])
+                _test_id=str(100060+int(random.uniform(1,1000)))
+                print(" _site_name:",_site_name,'  _appt_date:', _appt_date,' _appt_time:',_appt_time,' _test_id',_test_id)
+                cursor.callproc('test_sign_up',(_username,_site_name,_appt_date,_appt_time,_test_id,))
+                #cursor.callproc('test_sign_up',('mgeller3','Bobby Dodd Stadium','2020-09-16', '12:00:00','100061',))
+                #cursor.callproc('mgeller3', 'Bobby Dodd Stadium', '2020-10-01', '11:00:00',))
+                conn.commit()
+                cursor.execute(sql)
+                count_test_update=cursor.fetchone()
+                if count_test_update[0]>count_test[0]:
+                    error='Successfully create an appointment!'+'  Test ID:'+_test_id+'  Date:'+_appt_date+'  Time:'+_appt_time+'  Site:'+_site_name
+                else:
+                    error="You already have one upcoming appointment!"
+            else:
+                error="Please choose one bullect point to sign up for an appointment!"
         
     elif request.method == "GET":
         _testing_site,_start_date,_end_date,_start_time,_end_time,flag=None,None,None,None,None,0
     
+    flash(error)
     cursor.callproc('test_sign_up_filter',(_username,_testing_site,_start_date,_end_date,_start_time,_end_time))
     cursor.execute("select * from test_sign_up_filter_result;")
     data=cursor.fetchall()
-    return render_template('signup_for_a_test.html',data=data,site=site)
+    return render_template('signup_for_a_test.html',data=data,site=site,error=error)
 
 
 # screen 8: connect to screen 3: labtech home

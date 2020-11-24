@@ -1,4 +1,4 @@
--- CS4400: Introduction to Database Systems
+POOL-- CS4400: Introduction to Database Systems
 -- Covid Testing Site Datebase Create Queries
 
 DROP DATABASE IF EXISTS covidtest_fall2020;

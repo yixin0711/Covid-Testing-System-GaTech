@@ -4,8 +4,20 @@
 
 {% block body%}
 	<h2> Signup For A Test </h2>
-	<form action="" method=post>
+	
+    {% if error %}
+        <p><strong>Error:</strong> {{ error }}
+    {% endif %}
     
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        <ul class=flashes>
+        {% for message in messages %}<li>{{ message }}</li>
+        {% endfor %}</ul>
+      {% endif %}
+    {% endwith %}
+    
+	<form action="" method=post>
 	<p>
     	Testing Site:
 	<select id="_testing_site" name = "_testing_site">
@@ -55,7 +67,7 @@
 	    <th align="center"> {{row[1]}}</th>
 	    <th align="center"> {{row[2]}} </th>
 	    <th align="center"> {{row[3]}} </th>
-	    <th align="center"><label ><input type="radio" name="clickIn"  value="clickIn" /></label></th>
+	    <th align="center"><label ><input type="radio" name="clickIn"  value="{{row[0]}},{{row[1]}},{{row[2]}},{{row[3]}}" /></label></th>
 	  </tr>
 	  {% endfor %}
 	</table>
