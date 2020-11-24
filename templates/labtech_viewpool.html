@@ -1,0 +1,35 @@
+{% extends "layout.html" %}
+{% block title%} View Pools {% endblock%}
+{% block link%}
+    <a href="{{ url_for('index')}}"> Return to Home Page </a>|
+{% endblock%}
+{% block body%}
+	<h2> Explore Pool Results </h2>
+	<h2> Pool Metadata </h2>
+	<table width="600" border="1", align="center">
+	  <tr><th align="center"> Pool ID </th> <th align="center"> {{pool[0]}} </th></tr>
+	  <tr><th align="center"> Date Processed</th><th align="center"> {{pool[1]}} </th></tr>
+	  <tr><th align="centet"> Pooled Result </th><th align="center"> {{pool[2]}} </th></tr>
+	  <tr><th align="centet"> Processed By </th><th align="center"> {{pool[3]}} </th></tr>
+	</table>
+
+	<h2>Tests In Pool</h2>
+	<table width="600" border="1", align="center">
+	  <tr>
+	    <th align="center"> Test ID# </th>
+	    <th align="center"> Date Processed </th>
+	    <th align="center"> Testing Site</th>
+	    <th align="centet"> Test Result </th>
+	  </tr>
+	  {% for test in tests%}
+	  <tr>
+	    <th align="center"> {{test[0]}}</th>
+	    <th align="center"> {{test[1]}} </th>
+	    <th align="center"> {{test[2]}}</th>
+	    <th align="centet"> {{test[3]}} </th>
+	  </tr>
+	  {% endfor %}
+	</table>
+
+<h2><button onclick="goBack()">Back(Home)</button></h2>
+{% endblock%}
