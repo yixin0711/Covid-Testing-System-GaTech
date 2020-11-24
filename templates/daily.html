@@ -6,6 +6,12 @@
 	<a href="{{ url_for('logout') }}"> Log Out </a> 
 {%  endblock%}
 {% block body%}
+    <script>
+    function goBack() {
+      window.history.back();
+    }
+    </script>
+    
 	<h2> View Daily Results </h2>
 	<table width="600" border="1", align="center">
 	  <tr>

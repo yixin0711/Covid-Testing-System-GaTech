@@ -1,0 +1,58 @@
+{% extends 'layout.html' %}
+{% block title%} GT COVID-19 Testing {% endblock %}
+
+{% block body%}
+	<h2> Lab Tech Tests Processed </h2>
+	<form action="" method=post>
+
+    <p align="center">
+	    Date Tested:
+	    {% if flag==0%}
+	    <input type="date" name=_start_date value="" size=30 min="2019-01-01" max="2020-12-31"> 
+	    -
+	    <input type="date" name=_end_date size=30 value="" min="2019-01-01" max="2020-12-31"> 
+	    {% else %}
+	    <input type="date" name=_start_date value="{{request.form._start_date}}" size=30 min="2019-01-01" max="2020-12-31"> 
+	    -
+	    <input type="date" name=_end_date size=30 value="{{request.form._end_date}}" min="2019-01-01" max="2020-12-31">
+	    {% endif %} 	    
+	</p>
+	<p align="center">
+	Test Result:
+	<select id="_test_status" name = "_test_status">
+            	<option value="">All</option> 
+	  	    <option value="negative">Negative</option>
+      		<option value="positive">Positive</option>
+    	</select>
+    	</p>
+	
+	<table width="600" border="1", align="center">
+
+	  <tr>
+	  	<th align="center"> Test ID# </th>
+	    <th align="center"> Pool ID</th>
+	    <th align="centet"> Date Tested</th>
+	    <th align="centet"> Date Processed</th>
+	    <th align="centet"> Result</th>
+	  </tr>
+	  {% for row in data%}
+	  <tr>
+	    <th align="center"> {{row[0]}} </th>
+	    <th align="center"> {{row[1]}}</th>
+	    <th align="centet"> {{row[2]}} </th>
+	    <th align="centet"> {{row[3]}} </th>
+	    <th align="centet"> {{row[4]}} </th>
+	  </tr>
+	  {% endfor %}
+	</table>
+	
+    
+    <div class=action>
+        <input type="submit" name="submit_button" value="Back(Home)">
+        <input type="submit" name="submit_button" value="Filter">
+        <input type="submit" name="submit_button" value="Reset">
+    </div>
+    </form>
+
+
+{% endblock%}

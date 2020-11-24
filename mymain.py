@@ -176,6 +176,23 @@ def back_home():
         error = 'Invalid User, please login'
         return render_template('login.html', error = error)
 
+def user_judge():
+	if not session['user_id']:
+		error = 'Invalid User, please login'
+		return render_template('login.html', error = error)
+    
+#screen 18
+@app.route("/daily", methods=("GET", "POST"))
+def daily():
+    """
+    This screen shows testing statistics grouped by processing date
+    """
+    user_judge()
+    cursor.callproc('daily_results')
+    cursor.execute('select * from daily_results_result')
+    daily_data = cursor.fetchall()
+    return render_template("daily.html", results = daily_data)
+
 @app.route('/')
 def index():
     
@@ -372,7 +389,7 @@ def student_home():
         elif  _instr == 'Sign Up for a Test':
             return redirect(url_for("signup_for_a_test"))
         elif  _instr == 'View Daily Results':
-            return redirect(url_for("login"))
+            return redirect(url_for("daily"))
         else:
             error = "Invalid selection"
             return render_template("student_home.html", error = error)
@@ -392,20 +409,27 @@ def labtech_home():
             f. View daily test results
     """
     error = None
-    if 'view_my' in request.form:
-        return redirect(url_for("login"))
-    elif 'view_pools' in request.form:
-        return redirect(url_for("login"))
-    elif 'view_daily' in request.form:
-        return redirect(url_for("login"))
-    elif 'view_agg' in request.form:
-        return redirect(url_for("login"))
-    elif 'process_pool' in request.form:
-        return redirect(url_for("login"))
-    elif 'create_pool' in request.form:
-        return redirect(url_for("login"))
+    if request.method == 'POST':
+        if 'Process Pool' == request.form["submit_button"]:
+            return redirect(url_for("login"))
+        
+        elif 'View My Processed Tests' == request.form["submit_button"]:
+            return redirect(url_for("lab_tech_tests_processed"))
+        
+        elif 'Create Pool' == request.form["submit_button"]:
+            return redirect(url_for("login"))
+        
+        elif 'View Aggregate Results' == request.form["submit_button"]:
+            return redirect(url_for("aggregrate_test_results"))
+        elif 'View Pools' == request.form["submit_button"]:
+            return redirect(url_for("login"))
+        
+        elif 'View Daily Results' == request.form["submit_button"]:
+            return redirect(url_for("daily"))
+        else:
+            error = "Invalid selection"
+            return render_template("labtech_home.html", error = error)
     else:
-        error = "Invalid selection"
         return render_template("labtech_home.html", error = error)
 
 @app.route("/sitetester_home", methods=("GET", "POST"))
@@ -549,10 +573,6 @@ def explore_test_result(id):
         return render_template("explore_test_result.html",data=data)
 
 
-
-
-
-    
 # screen 6 :connect to screen 3 student home
 # need to add def get_testing_site()
 @app.route("/student_home/aggregrate_test_results", methods=("GET", "POST"))
@@ -637,6 +657,38 @@ def signup_for_a_test():
     cursor.execute("select * from test_sign_up_filter_result;")
     data=cursor.fetchall()
     return render_template('signup_for_a_test.html',data=data,site=site)
+
+# screen 3: connect to screen 3: labtech home
+@app.route("/labtech_home/lab_tech_tests_processed", methods=("GET", "POST"))
+def lab_tech_tests_processed():
+    _lab_tech_username=session['user_id']
+    
+    if request.method == "POST":
+        _instr = request.form['submit_button']
+        
+        if _instr == 'Back(Home)':
+            return redirect(url_for("labtech_home"))
+        
+        elif _instr == "Filter":
+            _test_status = request.form.get("_test_status")
+            _start_date = request.form["_start_date"]
+            _end_date = request.form["_end_date"]
+            
+            _test_status=check_none(_test_status)
+            _start_date=check_none(_start_date)
+            _end_date=check_none(_end_date)
+            flag=1
+        
+        elif  _instr == "Reset":
+            _test_status,_start_date,_end_date,flag=None,None,None,0 
+        
+    elif request.method == "GET":
+        _test_status,_start_date,_end_date,flag=None,None,None,0
+        
+    cursor.callproc('tests_processed',(_start_date,_end_date,_test_status,_lab_tech_username,))
+    cursor.execute("select * from tests_processed_result;")
+    data=cursor.fetchall()     
+    return render_template('lab_tech_tests_processed.html', data=data,flag=flag)
     
     
 

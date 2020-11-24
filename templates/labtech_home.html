@@ -7,8 +7,10 @@
 
 {% block body%}
 	<h2> Lab Technician Home </h2>
-	
+    <form action="" method=post>
+	<div class=action>
 	<p align="center">
+<<<<<<< Updated upstream
 		<a href="{{ url_for('login') }}" >
 			<button class=grey style="height:75px;width:150px">Process Pool</button>
 		</a>
@@ -32,10 +34,25 @@
 		<a href="{{ url_for('daily') }}" >
 			<button class=grey style="height:75px;width:150px">View Daily Results</button>
 		</a>
+=======
+			<button class=grey name="submit_button" value="Process Pool"
+        			style="height:70px;width:200px">Process Pool</button>
+			<button class=grey name="submit_button" value="View My Processed Tests"
+        			style="height:70px;width:200px">View My Processed Tests</button>
+    </p>
+	<p align="center">
+			<button class=grey name="submit_button" value="Create Pool"
+        			style="height:70px;width:200px">Create Pool</button>
+			<button class=grey name="submit_button" value="View Aggregate Results"
+        			style="height:70px;width:200px">View Aggregate Results</button>
+>>>>>>> Stashed changes
 	</p>
 	<p align="center">
-		<a href="{{ url_for('login') }}" >
-			<button class=grey style="height:75px;width:150px">View Aggregate Results</button>
-		</a>
+		<button class=grey name="submit_button" value="View Pools"
+        		style="height:70px;width:200px">View Pools</button>
+        <button class=grey name="submit_button" value="View Daily Results"
+            style="height:70px;width:200px">View Daily Results</button>
 	</p>
+	</div>
+	</form>
 {% endblock%}
