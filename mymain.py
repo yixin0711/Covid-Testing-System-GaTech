@@ -153,6 +153,11 @@ def is_user(username):
         result = True
     return result, user
 
+@app.route('/logout')
+def logout():
+	session.pop('user_id', None)
+	return redirect(url_for('index'))
+
 @app.route('/back_home')
 def back_home():
     # user_judge()
@@ -422,7 +427,7 @@ def labtech_home():
         elif 'View Aggregate Results' == request.form["submit_button"]:
             return redirect(url_for("aggregrate_test_results"))
         elif 'View Pools' == request.form["submit_button"]:
-            return redirect(url_for("login"))
+            return redirect(url_for("view_pools"))
         
         elif 'View Daily Results' == request.form["submit_button"]:
             return redirect(url_for("daily"))
@@ -689,7 +694,68 @@ def lab_tech_tests_processed():
     cursor.execute("select * from tests_processed_result;")
     data=cursor.fetchall()     
     return render_template('lab_tech_tests_processed.html', data=data,flag=flag)
-    
+
+@app.route("/view_pools", methods=("GET", "POST"))
+def view_pools():
+    """
+    view_pools
+    """
+    error = None
+    rows = (())
+    l = range(len(rows))
+    rows_dict = {"pool_id": [row[0] for row in rows],
+                 "test_id": [row[1] for row in rows],
+                 "date_processed": [row[2] for row in rows],
+                 "processed_by": [row[3] for row in rows],
+                 "pool_status": [row[4] for row in rows]
+                 }
+    data = rows_dict
+    flash(error)
+
+    #data = json.dumps(rows_dict)
+    if request.method == 'POST':
+
+        if str(request.form['begin_process_date'] == ''):
+            _begin_process_date = None
+        else:
+            _begin_process_date = request.form['begin_process_date']
+
+        if str(request.form['end_process_date'] == ''):
+            _end_process_date = None
+        else:
+            _end_process_date = request.form['end_process_date']
+
+        if str(request.form.get('utypes')) == 'ALL':
+            _pool_status = None
+        elif str(request.form.get('utypes')) == 'Positive':
+            _pool_status = 'positive'
+        else:
+            _pool_status = 'negative'
+
+        if str(request.form['processed_by']) == '':
+            _processed_by = None
+        else:
+            _processed_by = request.form['processed_by']
+
+        cursor.callproc('view_pools', (_begin_process_date, _end_process_date, _pool_status, _processed_by,))
+        conn.commit()
+        cursor.execute('select * from view_pools_result; ')
+        rows = cursor.fetchall()
+
+        error = None
+        rows_dict = {"pool_id": [row[0] for row in rows],
+                     "test_id": [row[1] for row in rows],
+                     "date_processed": [row[2] for row in rows],
+                     "processed_by": [row[3] for row in rows],
+                     "pool_status": [row[4] for row in rows]
+                    }
+        l = range(len(rows))
+        data = rows_dict
+        #data = json.dumps(rows_dict,indent=4, sort_keys=True, default=str)
+        flash(error)
+        return render_template('view_pools.html',error=error,data = data,l = l)
+    else:
+        return render_template('view_pools.html',error=error,data = data,l = l)
     
 
     
