@@ -18,39 +18,49 @@
     {% endwith %}
     
 	<form action="" method=post>
+	{% if flag==0 %}
 	<p>
     	Testing Site:
-	<select id="_testing_site" name = "_testing_site">
+	<select id="_testing_site" name = _testing_site>
             	<option value="">All</option>
             	{% for sit in site %}
                 	<OPTION value="{{sit}}">{{sit}}</option>
             	{% endfor %}
     	</select>
 	    Date:
-	    {% if flag==0%}
 	    <input type="date" name=_start_date value="" size=30 min="2019-01-01" max="2020-12-31"> 
 	    -
-	    <input type="date" name=_end_date size=30 value="" min="2019-01-01" max="2020-12-31"> 
-	    {% else %}
-	    <input type="date" name=_start_date value="{{request.form._start_date}}" size=30 min="2019-08-01" max="2020-12-31"> 
-	    -
-	    <input type="date" name=_end_date size=30 value="{{request.form._end_date}}" min="2019-08-01" max="2020-12-31">
-	    {% endif %}
+	    <input type="date" name=_end_date value="" size=30 min="2019-01-01" max="2020-12-31"> 
 	    </p>
 	    <p>
 	    Time:
-    	    {% if flag==0%}
 	    <input type="time" name=_start_time value="" size=30 > 
 	    -
 	    <input type="time" name=_end_time value="" size=30 > 
-	    {% else %}
+	    	  </p>
+	{% else %}
+	<p>
+	       Testing Site:
+        	<select id="_testing_site" name = _testing_site>
+                   	<option value="{{request.form._testing_site}}">{{request.form._testing_site}}</option>
+                   	<option value="">All</option>
+                   	{% for sit in site %}
+                       	<OPTION value="{{sit}}">{{sit}}</option>
+                   	{% endfor %}
+        	</select>
+	    Date:
+	    <input type="date" name=_start_date value="{{request.form._start_date}}" size=30 min="2019-08-01" max="2020-12-31"> 
+	    -
+	    <input type="date" name=_end_date size=30 value="{{request.form._end_date}}" min="2019-08-01" max="2020-12-31">
+	    	  </p>
+	    <p>
+	    Time:
 	    <input type="time" name=_start_time value="{{request.form._start_time}}" size=30 > 
 	    -
 	    <input type="time" name=_end_time value="{{request.form._end_date}}" size=30 >
-	    {% endif %}
-	    
-	    
-	</p>
+		</p>
+	{% endif %}
+
 	
 	<table width="600" border="1", align="center">
 

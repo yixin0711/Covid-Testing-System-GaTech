@@ -6,8 +6,13 @@
     <form action="" method=post>
     
 	<p>Status:
-	<select id="_test_status" name = "_test_status">
-            	<option value="">All</option> 
+	<select id="_test_status" name = _test_status>
+    {% if flag==0%}
+        <option value="">All</option> 
+    {% else %}
+        <option value="{{request.form._test_status}}">{{request.form._test_status}}</option>
+        <option value="">All</option> 
+    {% endif %}
 	  	    <option value="negative">Negative</option>
       		<option value="positive">Positive</option>
       		<option value="pending">Pending</option>

@@ -1,4 +1,4 @@
-POOL-- CS4400: Introduction to Database Systems
+-- CS4400: Introduction to Database Systems
 -- Covid Testing Site Datebase Create Queries
 
 DROP DATABASE IF EXISTS covidtest_fall2020;
@@ -166,7 +166,6 @@ VALUES
 ('aallman302','password47','aallman302@gatech.edu','Aiysha','Allman'),
 ('kweston85','password48','kweston85@gatech.edu','Kyle','Weston');
 
-SET SQL_SAFE_UPDATES = 0;
 UPDATE USER SET user_password = MD5(user_password);
 
 -------------------------

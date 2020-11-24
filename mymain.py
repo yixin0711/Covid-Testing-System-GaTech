@@ -159,6 +159,11 @@ def logout():
 	session.pop('user_id', None)
 	return redirect(url_for('index'))
 
+def user_judge():
+	if not session['user_id']:
+		error = 'Invalid User, please login'
+		return render_template('login.html', error = error)
+    
 @app.route('/back_home')
 def back_home():
     # user_judge()
@@ -182,10 +187,7 @@ def back_home():
         error = 'Invalid User, please login'
         return render_template('login.html', error = error)
 
-def user_judge():
-	if not session['user_id']:
-		error = 'Invalid User, please login'
-		return render_template('login.html', error = error)
+
     
 #screen 18
 @app.route("/daily", methods=("GET", "POST"))
@@ -531,7 +533,6 @@ def check_none(judge):
 # screen 4: connect to screen 3: student home
 @app.route("/student_home/student_view_test_results", methods=("GET", "POST"))
 def student_view_test_results():
-    
     _username=session['user_id']
     
     if request.method == "POST":
@@ -555,7 +556,6 @@ def student_view_test_results():
         
     elif request.method == "GET":
         _test_status,_start_date,_end_date,flag=None,None,None,0
-        
     cursor.callproc('student_view_results',(_username, _test_status,_start_date,_end_date,))
     cursor.execute("select * from student_view_results_result;")
     data=cursor.fetchall()
@@ -576,7 +576,12 @@ def explore_test_result(id):
         cursor.callproc('explore_results',(_test_id,))
         cursor.execute("select * from explore_results_result;")
         data=cursor.fetchall()
-        return render_template("explore_test_result.html",data=data)
+        if data ==():
+            error="This test has not been tested."
+            flash(error)
+            return redirect(url_for("student_view_test_results"))
+        else:
+            return render_template("explore_test_result.html",data=data)
 
 
 # screen 6 :connect to screen 3 student home
@@ -657,7 +662,18 @@ def signup_for_a_test():
             _testing_site,_start_date,_end_date,_start_time,_end_time,flag=None,None,None,None,None,0
         
         elif _instr == "Sign up":
-            _testing_site,_start_date,_end_date,_start_time,_end_time,flag=None,None,None,None,None,0
+            _testing_site=request.form.get("_testing_site")
+            _start_date = request.form["_start_date"]
+            _end_date = request.form["_end_date"]
+            _start_time = request.form["_start_time"]
+            _end_time = request.form["_end_time"]            
+
+            _testing_site=check_none(_testing_site)
+            _start_date=check_none(_start_date)
+            _end_date=check_none(_end_date)
+            _start_time=check_none(_start_time)
+            _end_time=check_none(_end_time)            
+            flag=1
             if request.form.get("clickIn") is not None:
                 sql="select count(*) from test;"
                 cursor.execute(sql)
@@ -689,7 +705,7 @@ def signup_for_a_test():
     cursor.callproc('test_sign_up_filter',(_username,_testing_site,_start_date,_end_date,_start_time,_end_time))
     cursor.execute("select * from test_sign_up_filter_result;")
     data=cursor.fetchall()
-    return render_template('signup_for_a_test.html',data=data,site=site,error=error)
+    return render_template('signup_for_a_test.html',data=data,site=site,error=error,flag=flag)
 
 
 # screen 8: connect to screen 3: labtech home

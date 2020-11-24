@@ -8,22 +8,37 @@
     
 	<p>
 	Location:
-	<select id="_location" name = "_location">
-            	<option value="">All</option>
+	<select id="_location" name =_location>
+    	{% if flag==0%}
+        <option value="">All</option>
+    	{% else %}
+    		<option value="{{request.form._location}}">{{request.form._location}}</option>
+    		<option value="">All</option>
+    	{% endif %}
             	{% for l in location %}
                 	<OPTION value="{{l}}">{{l}}</option>
             	{% endfor %}
     	</select>
     	Housing:
-	<select id="_housing" name = "_housing">
-            	<option value="">All</option>
+	<select id="_housing" name = _housing>
+	{% if flag==0%}
+        <option value="">All</option>
+    	{% else %}
+    		<option value="{{request.form._housing}}">{{request.form._housing}}</option>
+    		<option value="">All</option>
+    	{% endif %}
             	{% for h in housing %}
                 	<OPTION value="{{h}}">{{h}}</option>
             	{% endfor %}
     	</select>
     	Testing Site:
-	<select id="_testing_site" name = "_testing_site">
-            	<option value="">All</option>
+	<select id="_testing_site" name = _testing_site>
+	{% if flag==0%}
+        <option value="">All</option>
+    	{% else %}
+    		<option value="{{request.form._testing_sit}}">{{request.form._testing_sit}}</option>
+    		<option value="">All</option>
+    	{% endif %}
             	{% for s in site %}
                 	<OPTION value="{{s}}">{{s}}</option>
             	{% endfor %}
