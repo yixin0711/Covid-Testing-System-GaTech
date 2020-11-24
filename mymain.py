@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on Mon Nov 16 11:53:53 2020
+Created on Sat Nov 21 16:02:18 2020
 
-@author: Sharonvy
+@author: dengqingyuan
 """
 
+# include main_part1.py
 import re
 import time
 import pymysql
@@ -16,6 +17,7 @@ from flask import Flask, request, session, url_for, redirect, \
 	 render_template, abort, g, flash, _app_ctx_stack
 from flaskext.mysql import MySQL
 from werkzeug.security import generate_password_hash, check_password_hash
+import itertools
 
 # ============================ Basic Setup ============================
 
@@ -29,11 +31,7 @@ mysql = MySQL()
 
 # MySQL configurations
 app.config['MYSQL_DATABASE_USER'] = 'root'
-<<<<<<< Updated upstream
-app.config['MYSQL_DATABASE_PASSWORD'] = '680212ok'       #your password here
-=======
 app.config['MYSQL_DATABASE_PASSWORD'] = '19970611Dqy'       #your password here
->>>>>>> Stashed changes
 app.config['MYSQL_DATABASE_DB'] = 'covidtest_fall2020'
 app.config['MYSQL_DATABASE_HOST'] = 'localhost'
 
@@ -46,16 +44,138 @@ cursor = conn.cursor()
 # ============================ Basic Syntax for MySQL ============================
 # execute query
 # cursor.execute('select * from user where username = %s', (_username,))
-# user = cursor.fetchall()/fetchone()
-
+# user = cursor.fetchall()
 # call procedure 
 # cursor.callproc('pool_metadata', (_i_pool_id))
-# insert procedure
-# conn.commit()
 # if len(data) is 0 then success
 # data = cursor.fetchall()
 
 #screen 0: home page
+
+def get_housing():
+    """
+    This function returns a list of housing types, 
+    i.e. 'Off-campus Apartment'
+    """
+    cursor.execute('select distinct housing_type from student')
+    types = cursor.fetchall()
+    return list(itertools.chain(*types))
+
+def get_location():
+    """
+    This function returns a list of location, 
+    i.e. 'West'
+    """
+    cursor.execute('select distinct location from student')
+    location = cursor.fetchall()
+    return list(itertools.chain(*location))
+
+def is_student(username):
+    """
+    This function check if a user name is a student or not
+    Return: 
+        Bool (result)
+    """
+    
+    result = False
+    cursor.execute('select * from student where student_username = %s', (username,))
+    student = cursor.fetchone()
+    if student:
+        result = True
+    return result, student
+
+def is_admin(username):
+    """
+    This function check if a user name is an administrator or not
+    Return: 
+        Bool (result)
+    """
+    
+    result = False
+    cursor.execute('select * from administrator where admin_username = %s', (username,))
+    admin = cursor.fetchone()
+    if admin:
+        result = True
+    return result, admin
+
+def is_labtech(username):
+    """
+    This function check if a user name is a lab technician or not
+    Return: 
+        Bool (result)
+    """
+    
+    result = False
+    cursor.execute('select * from labtech where labtech_username = %s', (username,))
+    labtech = cursor.fetchone()
+    if labtech:
+        result = True
+    return result, labtech
+
+def is_tester(username):
+    """
+    This function check if a user name is a tester or not
+    Return: 
+        Bool (result)
+    """
+    
+    result = False
+    cursor.execute('select * from sitetester where sitetester_username = %s', (username,))
+    tester = cursor.fetchone()
+    if tester:
+        result = True
+    return result, tester
+
+def is_employee(username):
+    """
+    This function check if a user name is a employee or not
+    Return: 
+        Bool (result)
+    """
+    
+    result = False
+    cursor.execute('select * from employee where emp_username = %s', (username,))
+    emp = cursor.fetchone()
+    if emp:
+        result = True
+    return result, emp
+
+def is_user(username):
+    """
+    This function check if a user name is a user or not
+    Return: 
+        Bool (result)
+    """
+    result = False
+    cursor.execute('select * from user where username = %s', (username))
+    user = cursor.fetchone()
+    if user:
+        result = True
+    return result, user
+
+@app.route('/back_home')
+def back_home():
+    # user_judge()
+    username = session['user_id']
+    _is_student, _ = is_student(username)
+    _is_admin, _ = is_admin(username)
+    _is_labtech, _ = is_labtech(username)
+    _is_tester, _ = is_tester(username)
+    
+    if _is_student:
+        return redirect(url_for('student_home'))
+    elif _is_admin:
+        return redirect(url_for('admin_home'))
+    elif _is_labtech and not _is_tester:
+        return redirect(url_for('labtech_home'))
+    elif not _is_labtech and _is_tester:
+        return redirect(url_for('sitetester_home'))
+    elif _is_labtech and _is_tester:
+        return redirect(url_for('labtech_sitetester_home'))
+    else:
+        error = 'Invalid User, please login'
+        return render_template('login.html', error = error)
+
 @app.route('/')
 def index():
     
@@ -245,14 +365,13 @@ def student_home():
     error = None
     if request.method == 'POST':
         _instr = request.form['submit_button']
-        
-        if _instr == 'view_my':
-            return redirect(url_for("login"))
-        elif _instr == 'sign_up':
-            return redirect(url_for("login"))
-        elif  _instr == 'view_daily':
-            return redirect(url_for("login"))
-        elif  _instr == 'view_agg':
+        if _instr == 'View My Results':
+            return redirect(url_for("student_view_test_results"))
+        elif _instr == 'View Aggregate Results':
+            return redirect(url_for("aggregrate_test_results"))
+        elif  _instr == 'Sign Up for a Test':
+            return redirect(url_for("signup_for_a_test"))
+        elif  _instr == 'View Daily Results':
             return redirect(url_for("login"))
         else:
             error = "Invalid selection"
@@ -363,6 +482,164 @@ def labtech_sitetester_home():
     else:
         error = "Invalid selection"
         return render_template("labtech_sitetester_home.html", error = error)
+    
+def get_testing_site():
+    """
+    This function returns a list of testing site, 
+    i.e. 'Bobby Dodd Stadium'
+    """
+    cursor.execute('select distinct site_name from appointment')
+    site_name = cursor.fetchall()
+    return list(itertools.chain(*site_name))
 
+def check_none(judge):
+    if judge=="":
+        return None
+    else:
+        return judge
+# Have change student_home
+# screen 4: connect to screen 3: student home
+@app.route("/student_home/student_view_test_results", methods=("GET", "POST"))
+def student_view_test_results():
+    
+    _username=session['user_id']
+    
+    if request.method == "POST":
+        _instr = request.form['submit_button']
+        
+        if _instr == 'Back(Home)':
+            return redirect(url_for("student_home"))
+        
+        elif _instr == "Filter":
+            _test_status = request.form.get("_test_status")
+            _start_date = request.form["_start_date"]
+            _end_date = request.form["_end_date"]
+            
+            _test_status=check_none(_test_status)
+            _start_date=check_none(_start_date)
+            _end_date=check_none(_end_date)
+            flag=1
+        
+        elif  _instr == "Reset":
+            _test_status,_start_date,_end_date,flag=None,None,None,0 
+        
+    elif request.method == "GET":
+        _test_status,_start_date,_end_date,flag=None,None,None,0
+        
+    cursor.callproc('student_view_results',(_username, _test_status,_start_date,_end_date,))
+    cursor.execute("select * from student_view_results_result;")
+    data=cursor.fetchall()
+    return render_template("student_view_test_results.html", data=data,flag=flag)       
+
+
+
+# screen 5: connect to screen 4
+@app.route("/student_home/student_view_test_results/explore_test_result/<id>", methods=("GET", "POST"))
+def explore_test_result(id):
+    if request.method == "POST":
+        _instr = request.form['submit_button']
+        if _instr == 'Back(Home)':
+            return redirect(url_for("student_view_test_results"))
+
+    elif request.method == "GET":
+        _test_id=id
+        cursor.callproc('explore_results',(_test_id,))
+        cursor.execute("select * from explore_results_result;")
+        data=cursor.fetchall()
+        return render_template("explore_test_result.html",data=data)
+
+
+
+
+
+    
+# screen 6 :connect to screen 3 student home
+# need to add def get_testing_site()
+@app.route("/student_home/aggregrate_test_results", methods=("GET", "POST"))
+def aggregrate_test_results():
+    site=get_testing_site()
+    housing=get_housing()
+    location=get_location()
+    
+    if request.method == "POST":
+        _instr = request.form['submit_button']
+        
+        if _instr == 'Back(Home)':
+            return redirect(url_for("back_home"))
+        
+        if _instr == "Filter":
+            _location=request.form.get("_location")
+            _housing=request.form.get("_housing")
+            _testing_site=request.form.get("_testing_site")
+            _start_date = request.form["_start_date"]
+            _end_date = request.form["_end_date"]
+            
+            _location=check_none(_location)
+            _housing=check_none(_housing)
+            _testing_site=check_none(_testing_site)
+            _start_date=check_none(_start_date)
+            _end_date=check_none(_end_date)
+            flag=1
+
+        elif  _instr == "Reset":
+            _location,_housing,_testing_site,_start_date,_end_date,flag=None,None,None,None,None,0
+        
+    elif request.method == "GET":
+        _location,_housing,_testing_site,_start_date,_end_date,flag=None,None,None,None,None,0
+    
+    cursor.callproc('aggregate_results',(_location,_housing,_testing_site,_start_date,_end_date))
+    cursor.execute("select * from aggregate_results_result;")
+    data=cursor.fetchall()
+    total=0
+    for row in data:
+        total+=row[1]
+    return render_template("aggregrate_test_results.html",
+                           data=data,
+                           total=total,
+                           site=site,
+                           location=location,
+                           housing=housing,
+                           flag=flag)
+
+# screen 7: connect to screen 3: student home
+@app.route("/student_home/signup_for_a_test", methods=("GET", "POST"))
+def signup_for_a_test():
+    site=get_testing_site()
+    _username=session['user_id']
+    if request.method == "POST":
+        _instr = request.form['submit_button']
+        
+        if _instr == 'Back(Home)':
+            return redirect(url_for("back_home"))
+        
+        if _instr == "Filter":
+            _testing_site=request.form.get("_testing_site")
+            _start_date = request.form["_start_date"]
+            _end_date = request.form["_end_date"]
+            _start_time = request.form["_start_time"]
+            _end_time = request.form["_end_time"]            
+
+            _testing_site=check_none(_testing_site)
+            _start_date=check_none(_start_date)
+            _end_date=check_none(_end_date)
+            _start_time=check_none(_start_time)
+            _end_time=check_none(_end_time)            
+            flag=1
+
+        elif  _instr == "Reset":
+            _testing_site,_start_date,_end_date,_start_time,_end_time,flag=None,None,None,None,None,0
+            
+        
+    elif request.method == "GET":
+        _testing_site,_start_date,_end_date,_start_time,_end_time,flag=None,None,None,None,None,0
+    
+    cursor.callproc('test_sign_up_filter',(_username,_testing_site,_start_date,_end_date,_start_time,_end_time))
+    cursor.execute("select * from test_sign_up_filter_result;")
+    data=cursor.fetchall()
+    return render_template('signup_for_a_test.html',data=data,site=site)
+    
+    
+
+    
 if __name__ == '__main__':
 	app.run(debug=True)

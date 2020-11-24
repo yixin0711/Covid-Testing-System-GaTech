@@ -1,0 +1,73 @@
+{% extends 'layout.html' %}
+{% block title%} GT COVID-19 Testing {% endblock %}
+
+
+{% block body%}
+	<h2> Signup For A Test </h2>
+	<form action="" method=post>
+    
+	<p>
+    	Testing Site:
+	<select id="_testing_site" name = "_testing_site">
+            	<option value="">All</option>
+            	{% for sit in site %}
+                	<OPTION value={{sit}}>{{sit}}</option>
+            	{% endfor %}
+    	</select>
+	    Date:
+	    {% if flag==0%}
+	    <input type="date" name=_start_date value="" size=30 min="2019-01-01" max="2020-12-31"> 
+	    -
+	    <input type="date" name=_end_date size=30 value="" min="2019-01-01" max="2020-12-31"> 
+	    {% else %}
+	    <input type="date" name=_start_date value="{{request.form._start_date}}" size=30 min="2020-08-01" max="2020-12-31"> 
+	    -
+	    <input type="date" name=_end_date size=30 value="{{request.form._end_date}}" min="2020-08-01" max="2020-12-31">
+	    {% endif %}
+	    </p>
+	    <p>
+	    Time:
+    	    {% if flag==0%}
+	    <input type="time" name=_start_time value="" size=30 min="2019-01-01" max="2020-12-31"> 
+	    -
+	    <input type="time" name=_end_time value="" size=30  min="2019-01-01" max="2020-12-31"> 
+	    {% else %}
+	    <input type="time" name=_start_time value="{{request.form._start_time}}" size=30 > 
+	    -
+	    <input type="time" name=_end_time value="{{request.form._end_date}}" size=30 >
+	    {% endif %}
+	    
+	    
+	</p>
+	
+	<table width="600" border="1", align="center">
+
+	  <tr>
+	  	<th align="center"> Date </th>
+	    <th align="center"> Time</th>
+	    <th align="centet"> Site Address</th>
+	    <th align="centet"> Test Site</th>
+	    <th align="centet"> Signup</th>
+	  </tr>
+	  {% for row in data%}
+	  <tr>
+	    <th align="center"> {{row[0]}} </th>
+	    <th align="center"> {{row[1]}}</th>
+	    <th align="center"> {{row[2]}} </th>
+	    <th align="center"> {{row[3]}} </th>
+	    <th align="center"><label >	<input type="radio" name="clickIn"  value="clickIn" /></label></th>
+	  </tr>
+	  {% endfor %}
+	</table>
+	
+    
+    <div class=action>
+        <input type="submit" name="submit_button" value="Back(Home)">
+        <input type="submit" name="submit_button" value="Filter">
+        <input type="submit" name="submit_button" value="Reset">
+        input type="submit" name="submit_button" value="Sign up">
+    </div>
+    </form>
+
+
+{% endblock%}

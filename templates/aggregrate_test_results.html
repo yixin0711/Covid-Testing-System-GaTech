@@ -1,0 +1,70 @@
+{% extends 'layout.html' %}
+{% block title%} GT COVID-19 Testing {% endblock %}
+
+
+{% block body%}
+	<h2> Aggregate Test Results </h2>
+	<form action="" method=post>
+    
+	<p>
+	Location:
+	<select id="_location" name = "_location">
+            	<option value="">All</option>
+            	{% for l in location %}
+                	<OPTION value="{{l}}">{{l}}</option>
+            	{% endfor %}
+    	</select>
+    	Housing:
+	<select id="_housing" name = "_housing">
+            	<option value="">All</option>
+            	{% for h in housing %}
+                	<OPTION value="{{h}}">{{h}}</option>
+            	{% endfor %}
+    	</select>
+    	Testing Site:
+	<select id="_testing_site" name = "_testing_site">
+            	<option value="">All</option>
+            	{% for s in site %}
+                	<OPTION value="{{s}}">{{s}}</option>
+            	{% endfor %}
+    	</select>
+    	</p>
+    <p>
+	    Date Processed:
+	    {% if flag==0%}
+	    <input type="date" name=_start_date value="" size=30 min="2019-01-01" max="2020-12-31"> 
+	    -
+	    <input type="date" name=_end_date size=30 value="" min="2019-01-01" max="2020-12-31"> 
+	    {% else %}
+	    <input type="date" name=_start_date value="{{request.form._start_date}}" size=30 min="2019-01-01" max="2020-12-31"> 
+	    -
+	    <input type="date" name=_end_date size=30 value="{{request.form._end_date}}" min="2019-01-01" max="2020-12-31">
+	    {% endif %} 	    
+	</p>
+	
+	<table width="600" border="1", align="center">
+
+	  <tr>
+	  	<th align="center"> Total </th>
+	    <th align="center"> {{total}}</th>
+	    <th align="centet"> 100%</th>
+	  </tr>
+	  {% for row in data%}
+	  <tr>
+	    <th align="center"> {{row[0]}} </th>
+	    <th align="center"> {{row[1]}}</th>
+	    <th align="centet"> {{row[2]}} </th>
+	  </tr>
+	  {% endfor %}
+	</table>
+	
+    
+    <div class=action>
+        <input type="submit" name="submit_button" value="Back(Home)">
+        <input type="submit" name="submit_button" value="Filter">
+        <input type="submit" name="submit_button" value="Reset">
+    </div>
+    </form>
+
+
+{% endblock%}

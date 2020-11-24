@@ -7,26 +7,32 @@
 
 {% block body%}
 	<h2> Student Home </h2>
-
-	<p align="center">
-		<a href="{{ url_for('login') }}" >
-			<button class=grey style="height:75px;width:150px">View My Results</button>
-		</a>
-	</p>
-	<p align="center">
-		<a href="{{ url_for('login') }}" >
-			<button class=grey style="height:75px;width:150px">Sign Up for a Test</button>
-		</a>
-	</p>
-	<p align="center">
-		<a href="{{ url_for('login') }}" >
-			<button class=grey style="height:75px;width:150px">View Daily Results</button>
-		</a>
-	</p>
-	<p align="center">
-		<a href="{{ url_for('login') }}" >
-			<button class=grey style="height:75px;width:150px">View Aggregate Results</button>
-		</a>
-	</p>
+	<form action="" method=post>
+	    <div class=action>
+	    <!--
+	    <p>
+            <input type="submit" name="submit_button" value="View My Results">
+            <input type="submit" name="submit_button" value="View Aggregate Results">
+        </p>
+        <p>
+            <input type="submit" name="submit_button" value="Sign Up for a Test">
+            <input type="submit" name="submit_button" value="View Daily Results">
+        </p>
+        -->
+        	<p align="center">
+			<button name="submit_button" value="View My Results" 
+        			class=grey style="height:70px;width:200px">View My Results</button>
+			<button name="submit_button" value="View Aggregate Results" 
+        			class=grey style="height:70px;width:200px">View Aggregate Results</button>
+        	</p>
+        	<p align="center">
+			<button name="submit_button" value="Sign Up for a Test" 
+        			class=grey style="height:70px;width:200px">Sign Up for a Test</button>
+			<button name="submit_button" value="View Daily Results"
+        			class=grey style="height:70px;width:200px">View Daily Results</button>
+        	</p>
+        	
+        </div>
+    </form>
 
 {% endblock%}
