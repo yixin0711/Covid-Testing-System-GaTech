@@ -34,7 +34,7 @@
         <tbody>
             {% for i in l %}
             <tr align="center">
-                <td>{{ data['pool_id'][i] }}
+                <td><a href = "{{url_for('labtech_viewpool', id = data['pool_id'][i])}}"> {{data['pool_id'][i]}} </a> </td>
                 <td>{{ data['test_id'][i] }}
                 <td>{{ data['date_processed'][i] }}
                 <td>{{ data['processed_by'][i] }}

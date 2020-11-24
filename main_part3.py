@@ -361,6 +361,30 @@ def logout():
 	session.pop('user_id', None)
 	return redirect(url_for('index'))
 
+@app.route('/back_home')
+def back_home():
+    user_judge()
+    
+    username = session['user_id']
+    _is_student, _ = is_student(username)
+    _is_admin, _ = is_admin(username)
+    _is_labtech, _ = is_labtech(username)
+    _is_tester, _ = is_tester(username)
+    
+    if _is_student:
+        return redirect(url_for('student_home'))
+    elif _is_admin:
+        return redirect(url_for('admin_home'))
+    elif _is_labtech and not _is_tester:
+        return redirect(url_for('labtech_home'))
+    elif not _is_labtech and _is_tester:
+        return redirect(url_for('sitetester_home'))
+    elif _is_labtech and _is_tester:
+        return redirect(url_for('labtech_sitetester_home'))
+    else:
+        error = 'Invalid User, please login'
+        return render_template('login.html', error = error)
+
 # 添加简单的安全性检查
 def user_judge():
 	if not session['user_id']:
@@ -565,6 +589,70 @@ def admin_createsite():
                            state_list = states,
                            location_list = locations)
 
+#screen 9
+@app.route("/view_pools", methods=("GET", "POST"))
+def view_pools():
+    """
+    view_pools
+    """
+    error = None
+    rows = (())
+    l = range(len(rows))
+    rows_dict = {"pool_id": [row[0] for row in rows],
+                 "test_id": [row[1] for row in rows],
+                 "date_processed": [row[2] for row in rows],
+                 "processed_by": [row[3] for row in rows],
+                 "pool_status": [row[4] for row in rows]
+                 }
+    data = rows_dict
+    flash(error)
+
+    #data = json.dumps(rows_dict)
+    if request.method == 'POST':
+
+        if str(request.form['begin_process_date'] == ''):
+            _begin_process_date = None
+        else:
+            _begin_process_date = request.form['begin_process_date']
+
+        if str(request.form['end_process_date'] == ''):
+            _end_process_date = None
+        else:
+            _end_process_date = request.form['end_process_date']
+
+        if str(request.form.get('utypes')) == 'ALL':
+            _pool_status = None
+        elif str(request.form.get('utypes')) == 'Positive':
+            _pool_status = 'positive'
+        else:
+            _pool_status = 'negative'
+
+        if str(request.form['processed_by']) == '':
+            _processed_by = None
+        else:
+            _processed_by = request.form['processed_by']
+
+        cursor.callproc('view_pools', (_begin_process_date, _end_process_date, _pool_status, _processed_by,))
+        conn.commit()
+        cursor.execute('select * from view_pools_result; ')
+        rows = cursor.fetchall()
+
+        error = None
+        rows_dict = {"pool_id": [row[0] for row in rows],
+                     "test_id": [row[1] for row in rows],
+                     "date_processed": [row[2] for row in rows],
+                     "processed_by": [row[3] for row in rows],
+                     "pool_status": [row[4] for row in rows]
+                    }
+        l = range(len(rows))
+        data = rows_dict
+        #data = json.dumps(rows_dict,indent=4, sort_keys=True, default=str)
+        flash(error)
+        return render_template('view_pools.html',error=error,data = data,l = l)
+    else:
+        return render_template('view_pools.html',error=error,data = data,l = l)
+
+
 #screen 16 (和screen 9连接)
 @app.route("/labtech/viewpool/<id>", methods=("GET", "POST"))
 def labtech_viewpool(id):
@@ -579,13 +667,25 @@ def labtech_viewpool(id):
     _pool_id = id
     cursor.callproc('pool_metadata', (_pool_id,))
     cursor.execute('select * from pool_metadata_result')
-    pool_data = cursor.fetchall()
+    pool_data = cursor.fetchone()
 
     cursor.callproc('tests_in_pool', (_pool_id,))
     cursor.execute('select * from tests_in_pool_result')
     tests_data = cursor.fetchall()
-    return render_template("login.html", pool = pool_data, tests = tests_data)
+    return render_template("labtech_viewpool.html", pool = pool_data, tests = tests_data)
 
+#
+##screen 17
+#@app.route("tester/changesite", methods = ("GET", "POST"))
+#def tester_changesite(id):
+#    """
+#    Testers can use this screen to change their testing site.
+#    """
+#    error = None
+#    
+#    if request.method = "POST":
+#        
+#    
 
 #screen 18
 @app.route("/daily", methods=("GET", "POST"))

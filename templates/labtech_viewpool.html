@@ -5,28 +5,33 @@
 {% endblock%}
 {% block body%}
 	<h2> Explore Pool Results </h2>
-	<h2> Pool Metadata </h2>
+	<p> Pool Metadata </p>
 	<table width="600" border="1", align="center">
+		<thead>
 	  <tr><th align="center"> Pool ID </th> <th align="center"> {{pool[0]}} </th></tr>
-	  <tr><th align="center"> Date Processed</th><th align="center"> {{pool[1]}} </th></tr>
-	  <tr><th align="centet"> Pooled Result </th><th align="center"> {{pool[2]}} </th></tr>
-	  <tr><th align="centet"> Processed By </th><th align="center"> {{pool[3]}} </th></tr>
+	</thead>
+	<tbody>
+	  <tr><td align="center"> Date Processed</td><td align="center"> {{pool[1]}} </td></tr>
+	  <tr><td align="center"> Pooled Result </td><td align="center"> {{pool[2]}} </td></tr>
+	  <tr><td align="center"> Processed By </td><td align="center"> {{pool[3]}} </td></tr>
 	</table>
 
-	<h2>Tests In Pool</h2>
-	<table width="600" border="1", align="center">
-	  <tr>
-	    <th align="center"> Test ID# </th>
-	    <th align="center"> Date Processed </th>
-	    <th align="center"> Testing Site</th>
-	    <th align="centet"> Test Result </th>
-	  </tr>
+	<p>Tests In Pool</p>
+	<table>
+	  <thead>
+	  <tr align="center">
+	    <th> Test ID#
+	    <th> Date Processed
+	    <th> Testing Site
+	    <th> Test Result
+	</thead>
+	<tbody>
 	  {% for test in tests%}
-	  <tr>
-	    <th align="center"> {{test[0]}}</th>
-	    <th align="center"> {{test[1]}} </th>
-	    <th align="center"> {{test[2]}}</th>
-	    <th align="centet"> {{test[3]}} </th>
+	  <tr align="center">
+	    <td> {{test[0]}}
+	    <td> {{test[1]}}
+	    <td> {{test[2]}}
+	    <td> {{test[3]}}
 	  </tr>
 	  {% endfor %}
 	</table>
