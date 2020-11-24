@@ -2,7 +2,6 @@
 {% block title%} GT COVID-19 Testing {% endblock %}
 {% block link%} 
 	<a href="{{ url_for('index') }}"> Return to Home Page </a> | 
-	<a href="{{ url_for('back_home') }}"> Back (Home) </a> |
 	<a href="{{ url_for('logout') }}"> Log Out </a> 
 {%  endblock%}
 {% block body%}
@@ -14,19 +13,25 @@
     
 	<h2> View Daily Results </h2>
 	<table width="600" border="1", align="center">
+		<thead>
 	  <tr>
 	    <th align="center"> Date </th>
 	    <th align="center"> Tests Processed </th>
 	    <th align="center"> Positive Count</th>
-	    <th align="centet"> Positive Percent </th>
+	    <th align="center"> Positive Percent </th>
 	  </tr>
+	</thead>
+	<tbody>
 	  {% for result in results%}
 	  <tr>
-	    <th align="center"> {{result[0]}}</th>
-	    <th align="center"> {{result[1]}} </th>
-	    <th align="center"> {{result[2]}}</th>
-	    <th align="centet"> {{result[3]}} </th>
+	    <td align="center"> {{result[0]}}</td>
+	    <td align="center"> {{result[1]}} </td>
+	    <td align="center"> {{result[2]}}</td>
+	    <td align="center"> {{result[3]}}%</td>
 	  </tr>
 	  {% endfor %}
 	</table>
+	<p>
+	<button href="{{ url_for('back_home') }}"> Back (Home) </button>
+</p>
 {% endblock%}

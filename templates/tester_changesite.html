@@ -1,0 +1,28 @@
+{% extends 'layout.html' %}
+{% block title%} GT COVID-19 Testing {% endblock %}
+{% block link%} 
+	<a href="{{ url_for('index') }}"> Return to Home Page </a> | 
+	<a href="{{ url_for('logout') }}"> Log Out </a> 
+{%  endblock%}
+{% block body%}
+	<h2> Test Tester Change Testing Site </h2>
+	<form action="" method=post>
+	<table>
+	<tbody>
+	  <tr><td align="center"> Username</td><td align="center"> {{username}} </td></tr>
+	  <tr><td align="center"> Full Name </td><td align="center"> {{fullname[0]}} </td></tr>
+
+	  <tr><td align="center"> Assigned Sites </td><td align="center"> <table> {% for site in sites %}
+	  <tr><td><label><input type="radio" name="options" value="{{site[0]}}" /></label>{{site[0]}}</td></tr> {% endfor %} <tr><td> <select name = 'newsites'>
+	<option value="select1">--Select--</option> 
+	{% for a in reset_sites %}
+	<OPTION value="{{a}}">{{a}}</option>
+	{% endfor %}
+	</SELECT> </tr></td></table> </td></tr>
+
+	</table>
+	<div class=action>
+        <input type="submit" name="update" value="Update">
+    </div>
+    </form>
+{% endblock%}

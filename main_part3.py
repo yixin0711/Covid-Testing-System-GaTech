@@ -83,7 +83,7 @@ def get_location():
 def get_states():
     """
     This function returns a list of US States, 
-    i.e. 'West'
+    i.e. 'GA'
     """
     states = ["AL", "AK", "AZ", "AR", "CA", "CO", "CT", "DC", "DE", "FL", "GA", 
           "HI", "ID", "IL", "IN", "IA", "KS", "KY", "LA", "ME", "MD", 
@@ -91,6 +91,15 @@ def get_states():
           "NM", "NY", "NC", "ND", "OH", "OK", "OR", "PA", "RI", "SC", 
           "SD", "TN", "TX", "UT", "VT", "VA", "WA", "WV", "WI", "WY"]
     return states
+
+def get_testing_site():
+    """
+    This function returns a list of testing site, 
+    i.e. 'Bobby Dodd Stadium'
+    """
+    cursor.execute('select distinct site_name from site')
+    site_name = cursor.fetchall()
+    return list(itertools.chain(*site_name))
 
 def is_student(username):
     """
@@ -528,6 +537,78 @@ def admin_home():
         error = "Invalid selection"
         return render_template("admin_home.html", error = error)
 
+@app.route("/admin/reassign", methods=("GET", "POST"))
+def admin_reassign():
+    """
+    This screen is for an Admin to assign or reassign testers to testing sites.
+    """
+    error = None
+    _is_admin, _ = is_admin(session['user_id'])
+    if not _is_admin:
+        error = 'You do not have access to this page.'
+        return render_template('login.html', error = error)
+    
+    cursor.execute('select * from sitetester ')
+    testers = cursor.fetchall()
+    tester_id = list(itertools.chain(*testers))
+
+    all_sites = get_testing_site()
+    
+    testers_info = dict()
+    
+    for tester in tester_id:
+        testers_info[tester] = []
+        testers_info[tester].append(tester)
+        
+        cursor.execute('select concat(fname, " ",lname) from user where username = %s', (tester,))
+        name = cursor.fetchone()
+        testers_info[tester].append(name[0])
+        
+        cursor.execute('select phone_num from employee where emp_username = %s', (tester,))
+        num = cursor.fetchone()
+        testers_info[tester].append(num[0])
+        
+        cursor.callproc('tester_assigned_sites', (tester,))
+        cursor.execute('select * from tester_assigned_sites_result')
+        current_sites = cursor.fetchall()
+        
+        site_name = list(itertools.chain(*current_sites))
+        diff_sites = set(all_sites)-set(site_name)
+        
+        testers_info[tester].append(current_sites)
+        testers_info[tester].append(diff_sites)
+    
+    if request.method == "POST":
+        _delete_option = request.form.get('options')
+        _add_option = str(request.form.get('newsites'))
+        
+        if _delete_option is None and _add_option == 'select1':
+            error = "You haven't update anything."
+            return render_template("admin_reassign.html", error = error, testers = testers_info, usernames = tester_id)
+        
+        if _delete_option is not None:
+            temp = _delete_option[1:-1].split(',')
+            try:
+                cursor.callproc('unassign_tester', (temp[0][1:-1], temp[1][2:-1]))
+                conn.commit()
+                return redirect(url_for('admin_reassign'))
+            except Exception as e:
+                error = str(e)
+                return render_template("admin_reassign.html", error = error, testers = testers_info, usernames = tester_id)
+        
+        if not _add_option == 'select1':
+            temp = _add_option[1:-1].split(",")
+            try:
+                cursor.callproc('assign_tester', (temp[0][1:-1], temp[1][2:-1]))
+                conn.commit()
+                return redirect(url_for('admin_reassign'))
+            except Exception as e:
+                error = str(e)
+                return render_template("admin_reassign.html", error = error, testers = testers_info, usernames = tester_id)
+    flash(error)
+    return render_template("admin_reassign.html", error = error, testers = testers_info, usernames = tester_id)
+    
+
 #screen 15
 @app.route("/admin/createsite", methods=("GET", "POST"))
 def admin_createsite():
@@ -674,18 +755,77 @@ def labtech_viewpool(id):
     tests_data = cursor.fetchall()
     return render_template("labtech_viewpool.html", pool = pool_data, tests = tests_data)
 
-#
-##screen 17
-#@app.route("tester/changesite", methods = ("GET", "POST"))
-#def tester_changesite(id):
-#    """
-#    Testers can use this screen to change their testing site.
-#    """
-#    error = None
-#    
-#    if request.method = "POST":
-#        
-#    
+
+#screen 17
+@app.route("/tester/changesite/<id>", methods = ("GET", "POST"))
+def tester_changesite(id):
+    """
+    Testers can use this screen to change their testing site.
+    """
+    
+    error = None
+    
+    _is_tester, _ = is_tester(session['user_id'])
+    if not _is_tester:
+        error = 'You do not have access to this page.'
+        return render_template('login.html', error = error)
+    
+    username = id
+    cursor.execute('select concat(fname, " ",lname) from user where username = %s', (username,))
+    full_name = cursor.fetchone()
+    
+    cursor.execute('select site from working_at where username = %s', (username,))
+    sites = cursor.fetchall()
+    
+    site_name = list(itertools.chain(*sites))
+    all_sites = get_testing_site()
+    
+    diff_sites = set(all_sites)-set(site_name)
+    
+    if request.method == "POST":
+        _delete_option = request.form.get('options')
+        _add_option = str(request.form.get('newsites'))
+        
+        if _delete_option is None and _add_option == 'select1':
+            error = "You haven't update anything."
+            return render_template("tester_changesite.html", error = error,
+                           username = username, 
+                           fullname = full_name, 
+                           sites = sites,
+                           reset_sites = diff_sites)
+        
+        if _delete_option is not None:
+            try:
+                cursor.callproc('unassign_tester', (username, _delete_option))
+                conn.commit()
+                return redirect(url_for('tester_changesite', id = username))
+            except Exception as e:
+                error = str(e)
+                return render_template("tester_changesite.html", error = error,
+                           username = username, 
+                           fullname = full_name, 
+                           sites = sites,
+                           reset_sites = diff_sites)
+        
+        if not _add_option == 'select1':
+            try:
+                cursor.callproc('assign_tester', (username, _add_option))
+                conn.commit()
+                return redirect(url_for('tester_changesite', id = username))
+            except Exception as e:
+                error = str(e)
+                return render_template("tester_changesite.html", error = error,
+                           username = username, 
+                           fullname = full_name, 
+                           sites = sites,
+                           reset_sites = diff_sites)
+        
+        
+    return render_template("tester_changesite.html", error = error,
+                           username = username, 
+                           fullname = full_name, 
+                           sites = sites,
+                           reset_sites = diff_sites)
 
 #screen 18
 @app.route("/daily", methods=("GET", "POST"))

@@ -1,0 +1,45 @@
+{% extends 'layout.html' %}
+{% block title%} GT COVID-19 Testing {% endblock %}
+{% block link%} 
+	<a href="{{ url_for('index') }}"> Return to Home Page </a> | 
+	<a href="{{ url_for('back_home') }}"> Back(Home) </a> | 
+	<a href="{{ url_for('logout') }}"> Log Out {{[g.user]}}</a> 
+{%  endblock%}
+{% block body%}
+	<h2> Reassign Tester </h2>
+	{% if error %}
+	<div class = error>
+	  <strong>Error : </strong> {{error}}
+	</div>
+	{% endif%}
+	<form action="" method=post>
+	<table>
+		<thead>
+			<tr align="center">
+                <th>Username
+                <th>Name
+                <th>Phone Number
+                <th>Assigned Sites
+		</thead>
+	<tbody>
+	  <tbody>
+            {% for tester in usernames %}
+            <tr align="center">
+                <td>{{testers[tester][0]}}
+                <td>{{testers[tester][1]}}
+                <td>{{testers[tester][2]}}
+                <td><table> {% for site in testers[tester][3] %}
+	  <tr><td><label><input type="radio" name="options" value="{{tester,site[0]}}" /></label>{{site[0]}}</td></tr> {% endfor %} <tr><td> <select name = 'newsites'>
+	<option value="select1">--Select--</option> 
+	{% for a in testers[tester][4] %}
+	<OPTION value="{{tester,a}}">{{a}}</option>
+	{% endfor %}
+	</SELECT> </tr></td></table> 
+            </tr>
+            {% endfor %}
+	</table>
+	<div class=action>
+        <input type="submit" name="update" value="Update">
+    </div>
+    </form>
+{% endblock%}
