@@ -517,7 +517,7 @@ def get_testing_site():
     This function returns a list of testing site, 
     i.e. 'Bobby Dodd Stadium'
     """
-    cursor.execute('select distinct site_name from appointment')
+    cursor.execute('select distinct site_name from site')
     site_name = cursor.fetchall()
     return list(itertools.chain(*site_name))
 
@@ -663,7 +663,8 @@ def signup_for_a_test():
     data=cursor.fetchall()
     return render_template('signup_for_a_test.html',data=data,site=site)
 
-# screen 3: connect to screen 3: labtech home
+
+# screen 8: connect to screen 3: labtech home
 @app.route("/labtech_home/lab_tech_tests_processed", methods=("GET", "POST"))
 def lab_tech_tests_processed():
     _lab_tech_username=session['user_id']
@@ -695,6 +696,7 @@ def lab_tech_tests_processed():
     data=cursor.fetchall()     
     return render_template('lab_tech_tests_processed.html', data=data,flag=flag)
 
+# screen 9: connect to screen 3: 
 @app.route("/view_pools", methods=("GET", "POST"))
 def view_pools():
     """
