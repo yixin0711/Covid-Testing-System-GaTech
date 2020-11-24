@@ -3,8 +3,8 @@
 {% block title%} GT COVID-19 Testing {% endblock%}
 {% block link%}
 	<a href="{{ url_for('index')}}"> Return to Home Page   </a>|
-	<a href="{{ url_for('admin_home')}}"> Back   </a>|
-	<a href="{{ url_for('login')}}"> Log out </a>
+	<a href="{{ url_for('back_home')}}"> Back   </a>|
+	<a href="{{ url_for('logout')}}"> Log out </a>
 {% endblock%}
 
 {% block body %}
@@ -14,9 +14,10 @@
 	  <strong>Error : </strong> {{error}}
 	</div>
 	{% endif%}
+	<form action="" method=post enctype="multipart/form-data">
 	<dl>
 	    <dt>Site Name: </dt>
-	    <dd><input type=text name=name size=30 value="{{ request.form.username}}"> </dd>
+	    <dd><input type=text name=name size=30> </dd>
 	    <dt>Street:	 </dt>
 	    <dd><input type=text name=email size=30> </dd>
 	    <dt>City:	 </dt>
@@ -24,25 +25,25 @@
 	<p>State:<select name = 'state'>
 	<option value="select1">--Select--</option> 
 	{% for a in state_list %}
-	<OPTION value={{a}}>{{a}}</option>
+	<OPTION value="{{a}}">{{a}}</option>
 	{% endfor %}
 	</SELECT>
       </p>
 	</dl>
-	    <dt>Zip:	 </dt>
+	    <dt>Zip:</dt>
 	    <dd><input type=text name=lname size=30> </dd>
 	  </dl>
      <p>Location:<select name = 'location'>
     <option value="select2">--Select--</option>
 	{% for b in location_list %}
-	<OPTION value={{b}}>{{b}}</option>
+	<OPTION value="{{b}}">{{b}}</option>
 	{% endfor %}
 	</SELECT>
       </p>
       <p>First Tester:<select name = 'tester'>
      <option value="select3">--Select--</option>
 	{% for c in tester_list %}
-	<OPTION value={{c}}>{{c}}</option>
+	<OPTION value="{{c}}">{{c}}</option>
 	{% endfor %}
 	</SELECT>
       </p>

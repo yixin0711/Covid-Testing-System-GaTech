@@ -1,9 +1,9 @@
-
 {% extends 'layout.html' %}
 {% block title%} GT COVID-19 Testing {% endblock %}
 {% block link%} 
-	<a href="{{ url_for('login') }}"> Return to Home Page </a> | 
-	<a href="{{ url_for('login') }}"> Log Out </a> 
+	<a href="{{ url_for('index') }}"> Return to Home Page </a> | 
+	<a href="{{ url_for('back_home') }}"> Back (Home) </a> |
+	<a href="{{ url_for('logout') }}"> Log Out </a> 
 {%  endblock%}
 {% block body%}
 	<h2> View Daily Results </h2>
@@ -23,6 +23,4 @@
 	  </tr>
 	  {% endfor %}
 	</table>
-
-<h2><button onclick="goBack()">Back(Home)</button></h2>
 {% endblock%}

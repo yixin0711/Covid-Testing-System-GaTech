@@ -499,7 +499,7 @@ def admin_home():
     elif 'create_appt' in request.form:
         return redirect(url_for("login"))
     elif 'create_site' in request.form:
-        return redirect(url_for("admin_create_site"))
+        return redirect(url_for("admin_createsite"))
     else:
         error = "Invalid selection"
         return render_template("admin_home.html", error = error)
@@ -526,16 +526,16 @@ def admin_createsite():
         _city = request.form['city']
         _state = request.form.get('state')
         _zip = request.form['zip']
-        _location = request.form.get('location')
-        _tester = request.form.get('tester')
+        _location = str(request.form.get('location'))
+        _tester = str(request.form.get('tester'))
         
         if not _site_name or not _street or not _city or not _zip:
             error = "All field are required."
         elif _state == 'select1':
             error = "State is required."
-        elif _location == '--select--':
+        elif _location == 'select2':
             error = "Location is required."
-        elif _tester == '--select--':
+        elif _tester == 'select3':
             error = "A site cannot be created without at least one tester."
         
         names = _tester.split()
@@ -544,21 +544,21 @@ def admin_createsite():
         if not _username:
             error = "Site Tester does not exist."
     
-    if error is None:
-        try:
-            cursor.callproc('create_testing_site', 
-                            (_site_name, 
-                             _street, 
-                             _city,
-		                     _state, 
-	    	                 _zip, 
-		                     _location, 
-		                     _username,))
-            conn.commit()
-            return redirect(url_for('admin_createsite'))
-        
-        except Exception as e:
-            error = str(e)
+        if error is None:
+            try:
+                cursor.callproc('create_testing_site', 
+                                (_site_name, 
+                                 _street, 
+                                 _city,
+    		                     _state, 
+    	    	                 _zip, 
+    		                     _location, 
+    		                     _username,))
+                conn.commit()
+                return redirect(url_for('admin_createsite'))
+            
+            except Exception as e:
+                error = str(e)
     
     return render_template("admin_createsite.html", error = error, 
                            tester_list = testers, 
@@ -576,16 +576,14 @@ def labtech_viewpool(id):
         error = 'You do not have access to this page.'
         return render_template('login.html', error = error)
         
-    if request.method == 'POST':
-        _pool_id = id
-        cursor.callproc('pool_metadata', (_pool_id,))
-        cursor.execute('select * from pool_metadata_result')
-        pool_data = cursor.fetchall()
+    _pool_id = id
+    cursor.callproc('pool_metadata', (_pool_id,))
+    cursor.execute('select * from pool_metadata_result')
+    pool_data = cursor.fetchall()
 
-        cursor.callproc('tests_in_pool', (_pool_id,))
-        cursor.execute('select * from tests_in_pool_result')
-        tests_data = cursor.fetchall()
-        return redirect(url_for('latech_viewpool', id = id))
+    cursor.callproc('tests_in_pool', (_pool_id,))
+    cursor.execute('select * from tests_in_pool_result')
+    tests_data = cursor.fetchall()
     return render_template("login.html", pool = pool_data, tests = tests_data)
 
 
