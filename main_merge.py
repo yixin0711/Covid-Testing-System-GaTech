@@ -40,7 +40,7 @@ mysql = MySQL()
 
 # MySQL configurations
 app.config['MYSQL_DATABASE_USER'] = 'root'
-app.config['MYSQL_DATABASE_PASSWORD'] = '19970611Dqy'       #your password here
+app.config['MYSQL_DATABASE_PASSWORD'] = '123456'      #your password here
 app.config['MYSQL_DATABASE_DB'] = 'covidtest_fall2020'
 app.config['MYSQL_DATABASE_HOST'] = 'localhost'
 
@@ -565,6 +565,141 @@ def admin_home():
     else:
         error = "Invalid selection"
         return render_template("admin_home.html", error = error)
+
+@app.route("/admin/reassign", methods=("GET", "POST"))
+def admin_reassign():
+    """
+    This screen is for an Admin to assign or reassign testers to testing sites.
+    """
+    error = None
+    _is_admin, _ = is_admin(session['user_id'])
+    if not _is_admin:
+        error = 'You do not have access to this page.'
+        return render_template('login.html', error = error)
+    
+    cursor.execute('select * from sitetester ')
+    testers = cursor.fetchall()
+    tester_id = list(itertools.chain(*testers))
+
+    all_sites = get_testing_site()
+    
+    testers_info = dict()
+    
+    for tester in tester_id:
+        testers_info[tester] = []
+        testers_info[tester].append(tester)
+        
+        cursor.execute('select concat(fname, " ",lname) from user where username = %s', (tester,))
+        name = cursor.fetchone()
+        testers_info[tester].append(name[0])
+        
+        cursor.execute('select phone_num from employee where emp_username = %s', (tester,))
+        num = cursor.fetchone()
+        testers_info[tester].append(num[0])
+        
+        cursor.callproc('tester_assigned_sites', (tester,))
+        cursor.execute('select * from tester_assigned_sites_result')
+        current_sites = cursor.fetchall()
+        
+        site_name = list(itertools.chain(*current_sites))
+        diff_sites = set(all_sites)-set(site_name)
+        
+        testers_info[tester].append(current_sites)
+        testers_info[tester].append(diff_sites)
+    
+    if request.method == "POST":
+        _delete_option = request.form.get('options')
+        _add_option = str(request.form.get('newsites'))
+        
+        if _delete_option is None and _add_option == 'select1':
+            error = "You haven't update anything."
+            return render_template("admin_reassign.html", error = error, testers = testers_info, usernames = tester_id)
+        
+        if _delete_option is not None:
+            temp = _delete_option[1:-1].split(',')
+            try:
+                cursor.callproc('unassign_tester', (temp[0][1:-1], temp[1][2:-1]))
+                conn.commit()
+                return redirect(url_for('admin_reassign'))
+            except Exception as e:
+                error = str(e)
+                return render_template("admin_reassign.html", error = error, testers = testers_info, usernames = tester_id)
+        
+        if not _add_option == 'select1':
+            temp = _add_option[1:-1].split(",")
+            try:
+                cursor.callproc('assign_tester', (temp[0][1:-1], temp[1][2:-1]))
+                conn.commit()
+                return redirect(url_for('admin_reassign'))
+            except Exception as e:
+                error = str(e)
+                return render_template("admin_reassign.html", error = error, testers = testers_info, usernames = tester_id)
+    flash(error)
+    return render_template("admin_reassign.html", error = error, testers = testers_info, usernames = tester_id)
+    
+
+#screen 15
+@app.route("/admin/createsite", methods=("GET", "POST"))
+def admin_createsite():
+    """
+    This screen is for an Admin to create a testing sites.
+    """
+    error = None
+    testers = get_tester()
+    states = get_states()
+    locations = get_location()
+    
+    _is_admin, _ = is_admin(session['user_id'])
+    if not _is_admin:
+        error = 'You do not have access to this page.'
+        return render_template('login.html', error = error)
+    
+    if request.method == "POST":
+        _site_name = request.form["name"]
+        _street = request.form["street"]
+        _city = request.form['city']
+        _state = request.form.get('state')
+        _zip = request.form['zip']
+        _location = str(request.form.get('location'))
+        _tester = str(request.form.get('tester'))
+        
+        if not _site_name or not _street or not _city or not _zip:
+            error = "All field are required."
+        elif _state == 'select1':
+            error = "State is required."
+        elif _location == 'select2':
+            error = "Location is required."
+        elif _tester == 'select3':
+            error = "A site cannot be created without at least one tester."
+        
+        names = _tester.split()
+        cursor.execute('select username from user where fname = %s and lname = %s', (names[0], names[1],))
+        _username = cursor.fetchone()[0]
+        if not _username:
+            error = "Site Tester does not exist."
+    
+        if error is None:
+            try:
+                cursor.callproc('create_testing_site', 
+                                (_site_name, 
+                                 _street, 
+                                 _city,
+    		                     _state, 
+    	    	                 _zip, 
+    		                     _location, 
+    		                     _username,))
+                conn.commit()
+                return redirect(url_for('admin_createsite'))
+            
+            except Exception as e:
+                error = str(e)
+    
+    return render_template("admin_createsite.html", error = error, 
+                           tester_list = testers, 
+                           state_list = states,
+                           location_list = locations)
+
+
 
 # Have change student_home
 # screen 4: connect to screen 3: student home

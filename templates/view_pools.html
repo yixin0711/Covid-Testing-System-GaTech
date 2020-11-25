@@ -1,26 +1,45 @@
 {% extends "layout.html" %}
 {% block title%} View Pools {% endblock%}
-{% block link%}
-    <a href="{{ url_for('index')}}"> Return to Home Page </a>|
-{% endblock%}
 {% block body %}
 
 
     <h2 style="text-align: center;"> View Pools </h2>
     <form id="form1", action="" method=post>
       <dl>
-        <dt>Date Processed: <input type=text name=begin_process_date value="{{ request.form.begin_process_date}}" size=10> - <input type=text name=end_process_date value="{{ request.form.end_process_date}}" size=10> </dt>
+        <dt>Date Processed:
+            {% if flag==0%}
+            <input type="date" name=begin_process_date value="" size=10 > - <input type="date" name=end_process_date value="" size=10 >
+            {% else %}
+            <input type="date" name=begin_process_date value="{{ request.form.begin_process_date}}" size=10 > - <input type="date" name=end_process_date value="{{ request.form.end_process_date}}" size=10 >
+            {% endif %}
+        </dt>
       </dl>
       <dl>
-          <dt>Pool Status: <select id="userType" name = "utypes" onchange="getData(this);" >
+          <dt>Pool Status: <select id="_status" name = "stypes">
+          {% if flag==0%}
           <option value="ALL">ALL</option>
-          <option value="Positive"> Positive </option>
+          <option value="Positive">Positive</option>
           <option value="Negative">Negative</option>
+          <option value="Pending">Pending</option>
+          {% else %}
+                <option value="{{request.form.stypes}}">{{request.form.stypes}}</option>
+                {% for s in status_list %}
+                    {% if s != request.form.stypes%}
+                        <OPTION value="{{s}}">{{s}}</option>
+                    {% endif %}
+            	{% endfor %}
+          {% endif %}
           </select>
-          <dt>
+          </dt>
       </dl>
       <dl>
-        <dt>Processed By: <input type=text name=processed_by size=10 value="{{ request.form.processed_by}}"> </dt>
+        <dt>Processed By:
+             {% if flag==0%}
+                <input type=text name=processed_by size=10 value="">
+             {% else %}
+                <input type=text name=processed_by size=10 value="{{ request.form.processed_by}}">
+             {% endif %}
+        </dt>
       </dl>
       <table>
         <thead>
@@ -32,18 +51,25 @@
                 <th>Pool Status
         </thead>
         <tbody>
-            {% for i in l %}
+            {% for row in data %}
             <tr align="center">
-                <td><a href = "{{url_for('labtech_viewpool', id = data['pool_id'][i])}}"> {{data['pool_id'][i]}} </a> </td>
-                <td>{{ data['test_id'][i] }}
-                <td>{{ data['date_processed'][i] }}
-                <td>{{ data['processed_by'][i] }}
-                <td>{{ data['pool_status'][i] }}
+                {% if row[4]=='pending'%}
+                <td><a href = "{{url_for('labtech_processpool', id = row[0])}}" > {{row[0]}} </a> </td>
+                {% else %}
+                <td><a href = "{{url_for('labtech_viewpool', id = row[0])}}" > {{row[0]}} </a> </td>
+                {% endif %}
+                <td>{{ row[1] }}
+                <td>{{ row[2] }}
+                <td>{{ row[3] }}
+                <td>{{ row[4] }}
             </tr>
             {% endfor %}
       </table>
-      <button id="btn">Filter</button>
-
+      <div class=action>
+      <input type="submit" name="submit_button" value="Back(Home)">
+      <input type="submit" name="submit_button" value="Reset">
+      <input type="submit" name="submit_button" value="Filter">
+      </div>
     </form>
 
 {% endblock %}

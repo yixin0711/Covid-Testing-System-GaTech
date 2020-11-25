@@ -1,0 +1,64 @@
+{% extends "layout.html" %}
+{% block body %}
+    <h2 style="text-align: center;"> Process Pool </h2>
+    {% if error %}
+	<div class = error>
+	  <strong>Error : </strong> {{error}}
+	</div>
+	{% endif%}
+    <form id="form1", action="" method=post>
+      <dl>
+        <dt>Pool ID: {{_pool_id}}</dt>
+      </dl>
+
+      <dl>
+        <dt>Date Processed:
+            {% if flag==0%}
+            <input type="date" name=process_date value="" size=10 >
+            {% else %}
+            <input type="date" name=process_date value="{{ request.form.process_date}}" size=10 >
+            {% endif %}
+        </dt>
+      </dl>
+
+      <dl>
+      <dt>Pool Status: </dt>
+      <div class=action>
+      <input type="submit" name="submit_button" value="Positive">
+      <input type="submit" name="submit_button" value="Negative">
+      </div>
+      </dl>
+
+
+      <table>
+        <thead>
+            <tr align="center">
+                <th>Test ID#
+                <th>Date Tested
+                <th>Test Result
+        </thead>
+        <tbody>
+            {% for row in data %}
+            <tr align="center">
+                <td>{{ row[0] }}
+                <td>{{ row[1] }}
+                {% if _pool_status=='negative'%}
+                <td> Negative
+                {% endif %}
+                {% if _pool_status=='positive'%}
+                <td><select id="_status" name = {{row[0]}}>
+                <option value="Positive">Positive</option>
+                <option value="Negative">Negative</option>
+                </select>
+                {% endif %}
+            </tr>
+            {% endfor %}
+      </table>
+      <div class=action>
+      <input type="submit" name="submit_button" value="Back(Home)">
+      <input type="submit" name="submit_button" value="Process Pool">
+      </div>
+    </form>
+
+{% endblock %}
+

@@ -1,0 +1,35 @@
+{% extends 'layout.html' %}
+{% block title%} GT COVID-19 Testing {% endblock %}
+
+
+{% block body%}
+	<h2> Create an Appointment </h2>
+    {% if error %}
+	<div class = error>
+	  <strong>Error : </strong> {{error}}
+	</div>
+	{% endif%}
+	<form action="" method=post>
+      <dl>
+          <dt>Site Name: <select id="_status" name = "site_name">
+          <OPTION value=""></option>
+            {% for s in site %}
+                <OPTION value="{{s}}">{{s}}</option>
+            {% endfor %}
+          </select>
+          </dt>
+      </dl>
+    <dl>
+        <dt>Date: <input type="date" name=appt_date value="" size=10></dt>
+    </dl>
+    <dl>
+        <dt>Time: <input type="time" name=appt_time value="" size=10></dt>
+    </dl>
+    <div class=action>
+        <input type="submit" name="submit_button" value="Back(Home)">
+        <input type="submit" name="submit_button" value="Create Appointment">
+    </div>
+    </form>
+
+
+{% endblock%}

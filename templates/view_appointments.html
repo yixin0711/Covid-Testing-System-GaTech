@@ -1,0 +1,99 @@
+{% extends "layout.html" %}
+{% block title%} View Appointments {% endblock%}
+{% block body %}
+
+
+    <h2 style="text-align: center;"> View Appointments </h2>
+    <form id="form", action="" method=post>
+      <dl>
+          <dt>Testing Site: <select id="_testing_site_select" name = "testing_site">
+          {% if flag==0%}
+          <option value="ALL">ALL</option>
+              {% for s in site %}
+                  <OPTION value="{{s}}">{{s}}</option>
+              {% endfor %}
+          {% else %}
+                <option value="{{request.form.testing_site}}">{{request.form.testing_site}}</option>
+                <option value="ALL">ALL</option>
+                {% for s in site %}
+                    {% if s != request.form.testing_site%}
+                        <OPTION value="{{s}}">{{s}}</option>
+                    {% endif %}
+                {% endfor %}
+          {% endif %}
+          </select>
+          </dt>
+      </dl>
+      <dl>
+        <dt>Date:
+            {% if flag==0%}
+            <input type="date" name=begin_appt_date value="" size=10 > - <input type="date" name=end_appt_date value="" size=10 >
+            {% else %}
+            <input type="date" name=begin_appt_date value="{{ request.form.begin_appt_date}}" size=10 > - <input type="date" name=end_appt_date value="{{ request.form.end_appt_date}}" size=10 >
+            {% endif %}
+        </dt>
+      </dl>
+      <dl>
+        <dt>Time:
+            {% if flag==0%}
+            <input type="time" name=begin_appt_time value="" size=10 > - <input type="time" name=end_appt_time value="" size=10 >
+            {% else %}
+            <input type="time" name=begin_appt_time value="{{ request.form.begin_appt_time}}" size=10 > - <input type="time" name=end_appt_time value="{{ request.form.end_appt_time}}" size=10 >
+            {% endif %}
+        </dt>
+      </dl>
+
+      <dl>
+        <dt>Availability:
+            {% if flag1==0%}
+            <input type="radio" name="clickon" value="booked"><label>Show booked only</label>
+            <input type="radio" name="clickon" value="available"><label>Show available only</label>
+            <input type="radio" name="clickon" value="all"><label>Show all</label>
+            {% endif %}
+            {% if flag1==1%}
+            <input type="radio" name="clickon" value="booked" checked><label>Show booked only</label>
+            <input type="radio" name="clickon" value="available"><label>Show available only</label>
+            <input type="radio" name="clickon" value="all"><label>Show all</label>
+            {% endif %}
+            {% if flag1==2%}
+            <input type="radio" name="clickon" value="booked"><label>Show booked only</label>
+            <input type="radio" name="clickon" value="available" checked><label>Show available only</label>
+            <input type="radio" name="clickon" value="all"><label>Show all</label>
+            {% endif %}
+            {% if flag1==3%}
+            <input type="radio" name="clickon" value="booked"><label>Show booked only</label>
+            <input type="radio" name="clickon" value="available"><label>Show available only</label>
+            <input type="radio" name="clickon" value="all" checked><label>Show all</label>
+            {% endif %}
+
+        </dt>
+      </dl>
+      <table>
+        <thead>
+            <tr align="center">
+                <th>Date
+                <th>Time
+                <th>Test Site
+                <th>Location
+                <th>User
+        </thead>
+        <tbody>
+            {% for row in data %}
+            <tr align="center">
+                <td>{{ row[0] }}
+                <td>{{ row[1] }}
+                <td>{{ row[2] }}
+                <td>{{ row[3] }}
+                <td>{{ row[4] }}
+            </tr>
+            {% endfor %}
+      </table>
+      <div class=action>
+      <input type="submit" name="submit_button" value="Back(Home)">
+      <input type="submit" name="submit_button" value="Reset">
+      <input type="submit" name="submit_button" value="Filter">
+      </div>
+    </form>
+
+{% endblock %}
+

@@ -492,5 +492,6 @@ VALUES
 ('100057','pending','12','CCBOH WIC Clinic','2020-09-13','14:00:00'),
 ('100058','pending','12','North Avenue (Centenial Room)','2020-09-16','15:00:00'),
 ('100059','pending','13','West Village','2020-09-16','16:00:00'),
-('100060','pending','13','Caddell Building','2020-09-16','17:00:00');
-
+('100060','pending','13','Caddell Building','2020-09-16','17:00:00'),
+('100061','pending',NULL,'West Village','2020-09-16','18:00:00'),
+('100062','pending',NULL,'Curran St Parking Deck','2020-09-17','18:00:00');

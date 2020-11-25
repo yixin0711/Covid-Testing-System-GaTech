@@ -1,0 +1,40 @@
+{% extends 'layout.html' %}
+{% block title%} GT COVID-19 Testing {% endblock %}
+
+
+{% block body%}
+	<h2> Create a Pool </h2>
+    {% if error %}
+	<div class = error>
+	  <strong>Error : </strong> {{error}}
+	</div>
+	{% endif%}
+	<form action="" method=post>
+    <dl>
+        <dt>Pool ID: <input type=text name=pool_id value="{{ request.form.pool_id}}" size=10> </dt>
+    </dl>
+
+    <table width="600" border="1", align="center">
+
+	  <tr>
+	  	<th align="center"> Test ID# </th>
+	    <th align="center"> Date Tested </th>
+	    <th align="center"> Include in Pool </th>
+	  </tr>
+	  {% for row in data%}
+	  <tr>
+	    <th align="center"> {{row[0]}} </th>
+	    <th align="center"> {{row[1]}}</th>
+	    <th align="center"><label ><input type="checkbox" name={{row[0]}} value="{{row[0]}},{{row[1]}}" /></label></th>
+	  </tr>
+	  {% endfor %}
+	</table>
+    
+    <div class=action>
+        <input type="submit" name="submit_button" value="Back(Home)">
+        <input type="submit" name="submit_button" value="Create Pool">
+    </div>
+    </form>
+
+
+{% endblock%}
