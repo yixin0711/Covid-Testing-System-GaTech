@@ -38,7 +38,7 @@ mysql = MySQL()
 
 # MySQL configurations
 app.config['MYSQL_DATABASE_USER'] = 'root'
-app.config['MYSQL_DATABASE_PASSWORD'] = '123456'  # your password here
+app.config['MYSQL_DATABASE_PASSWORD'] = '19970611Dqy'  # your password here
 app.config['MYSQL_DATABASE_DB'] = 'covidtest_fall2020'
 app.config['MYSQL_DATABASE_HOST'] = 'localhost'
 
@@ -546,7 +546,7 @@ def labtech_sitetester_home():
     elif 'view_appt' in request.form:
         return redirect(url_for("login"))
     elif 'view_daily' in request.form:
-        return redirect(url_for("login"))
+        return redirect(url_for("daily"))
     elif 'view_agg' in request.form:
         return redirect(url_for("login"))
     elif 'create_appt' in request.form:
@@ -758,8 +758,8 @@ def signup_for_a_test():
 
     elif request.method == "GET":
         _testing_site, _start_date, _end_date, _start_time, _end_time, flag = None, None, None, None, None, 0
-
-    flash(error)
+    if error is not None:
+        flash(error)
     cursor.callproc('test_sign_up_filter', (_username, _testing_site, _start_date, _end_date, _start_time, _end_time))
     cursor.execute("select * from test_sign_up_filter_result;")
     data = cursor.fetchall()
