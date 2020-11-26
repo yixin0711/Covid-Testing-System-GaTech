@@ -534,7 +534,6 @@ def check_none(judge):
 @app.route("/student_home/student_view_test_results", methods=("GET", "POST"))
 def student_view_test_results():
     _username=session['user_id']
-    
     if request.method == "POST":
         _instr = request.form['submit_button']
         
@@ -556,6 +555,7 @@ def student_view_test_results():
         
     elif request.method == "GET":
         _test_status,_start_date,_end_date,flag=None,None,None,0
+
     cursor.callproc('student_view_results',(_username, _test_status,_start_date,_end_date,))
     cursor.execute("select * from student_view_results_result;")
     data=cursor.fetchall()
@@ -578,7 +578,6 @@ def explore_test_result(id):
         data=cursor.fetchall()
         if data ==():
             error="This test has not been tested."
-            flash(error)
             return redirect(url_for("student_view_test_results"))
         else:
             return render_template("explore_test_result.html",data=data)

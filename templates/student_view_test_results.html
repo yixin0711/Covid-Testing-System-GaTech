@@ -40,8 +40,7 @@
 	    <th align="centet"> Pool Status </th>
 	    <th align="centet"> Status </th>
 	  </tr>
-	  
-	  {% for row in data%}
+	  	 {% for row in data%}
 	  <tr>
 	    <th align="center"> <a href="{{url_for('explore_test_result',id=row[0])}}">{{row[0]}}</a></th>
 	    <th align="center"> {{row[1]}} </th>
@@ -51,6 +50,24 @@
 	  </tr>
 	  {% endfor %}
 	</table>
+	  
+	  <!--
+	  {% for row in data%}
+	  <tr>
+        	<if {{row[4]}}=='pending' >
+        	<th align="center"> {{row[0]}} </th>
+        	<else/>
+	    <th align="center"> <a href="{{url_for('explore_test_result',id=row[0])}}">{{row[0]}}</a></th>
+	    </if>
+	    
+	    <th align="center"> {{row[1]}} </th>
+	    <th align="center"> {{row[2]}}</th>
+	    <th align="center"> {{row[3]}} </th>
+	    <th align="center"> {{row[4]}} </th>
+	  </tr>
+	  {% endfor %}
+	</table>
+	-->
 
 	
     <div class=action>
