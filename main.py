@@ -590,6 +590,7 @@ def admin_home():
 # screen 4: connect to screen 3: student home
 @app.route("/student_home/student_view_test_results", methods=("GET", "POST"))
 def student_view_test_results():
+    e=0
     _username = session['user_id']
 
     if request.method == "POST":
@@ -614,9 +615,19 @@ def student_view_test_results():
     elif request.method == "GET":
         _test_status, _start_date, _end_date, flag = None, None, None, 0
     cursor.callproc('student_view_results', (_username, _test_status, _start_date, _end_date,))
+    #cursor.callproc('student_view_results', ("dengqingyuan4", None,None,None,))
     cursor.execute("select * from student_view_results_result;")
     data = cursor.fetchall()
-    return render_template("student_view_test_results.html", data=data, flag=flag)
+    if data==(()):
+        e=1
+    data1=[]
+    data2=[]
+    for row in data:
+        if row[4]=='pending':
+            data2.append(row)
+        else:
+            data1.append(row)
+    return render_template("student_view_test_results.html", data1=data1,data2=data2, flag=flag,e=e)
 
 
 # screen 5: connect to screen 4
@@ -642,7 +653,7 @@ def explore_test_result(id):
 
 # screen 6 :connect to screen 3 student home
 # need to add def get_testing_site()
-@app.route("/student_home/aggregrate_test_results", methods=("GET", "POST"))
+@app.route("/aggregrate_test_results", methods=("GET", "POST"))
 def aggregrate_test_results():
     site = get_testing_site()
     housing = get_housing()
@@ -693,6 +704,7 @@ def aggregrate_test_results():
 @app.route("/student_home/signup_for_a_test", methods=("GET", "POST"))
 def signup_for_a_test():
     error = None
+    message=None
     site = get_testing_site()
     _username = session['user_id']
     if request.method == "POST":
@@ -740,9 +752,10 @@ def signup_for_a_test():
                 _appt_date = str(row[0])
                 _appt_time = str(row[1])
                 _site_name = str(row[3])
-                _test_id = str(100060 + int(random.uniform(1, 1000)))
-                print(" _site_name:", _site_name, '  _appt_date:', _appt_date, ' _appt_time:', _appt_time, ' _test_id',
-                      _test_id)
+                cursor.execute("select max(test_id) from test;")
+                test_id=cursor.fetchone()
+                _test_id=str(int(test_id[0])+1)
+                #_test_id = str(100060 + int(random.uniform(1, 1000)))
                 cursor.callproc('test_sign_up', (_username, _site_name, _appt_date, _appt_time, _test_id,))
                 # cursor.callproc('test_sign_up',('mgeller3','Bobby Dodd Stadium','2020-09-16', '12:00:00','100061',))
                 # cursor.callproc('mgeller3', 'Bobby Dodd Stadium', '2020-10-01', '11:00:00',))
@@ -750,7 +763,7 @@ def signup_for_a_test():
                 cursor.execute(sql)
                 count_test_update = cursor.fetchone()
                 if count_test_update[0] > count_test[0]:
-                    error = 'Successfully create an appointment!' + '  Test ID:' + _test_id + '  Date:' + _appt_date + '  Time:' + _appt_time + '  Site:' + _site_name
+                    message = 'Successfully create an appointment!' + '  Test ID:' + _test_id + '  Date:' + _appt_date + '  Time:' + _appt_time + '  Site:' + _site_name
                 else:
                     error = "You already have one upcoming appointment!"
             else:
@@ -758,12 +771,10 @@ def signup_for_a_test():
 
     elif request.method == "GET":
         _testing_site, _start_date, _end_date, _start_time, _end_time, flag = None, None, None, None, None, 0
-    if error is not None:
-        flash(error)
     cursor.callproc('test_sign_up_filter', (_username, _testing_site, _start_date, _end_date, _start_time, _end_time))
     cursor.execute("select * from test_sign_up_filter_result;")
-    data = cursor.fetchall()
-    return render_template('signup_for_a_test.html', data=data, site=site, error=error, flag=flag)
+    data = cursor.fetchall()   
+    return render_template('signup_for_a_test.html', data=data, site=site, error=error, flag=flag,message=message)
 
 
 # screen 8: connect to screen 3: labtech home

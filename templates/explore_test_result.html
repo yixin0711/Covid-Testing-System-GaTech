@@ -1,19 +1,23 @@
 {% extends 'layout.html' %}
 {% block title%} GT COVID-19 Testing {% endblock %}
+{% block link%} 
+	<a href="{{ url_for('index') }}"> Return to Home Page </a> | 
+	<a href="{{ url_for('logout') }}"> Log Out {{[g.user]}}</a> 
+{%  endblock%}
 
 
 {% block body%}
 	<h2> Explore Test Result </h2>
 	<form action="" method=post>
 	<table width="600" border="1", align="center">
-	  <tr><th align="center"> Test ID # </th> <th align="center"> {{data[0][0]}} </th></tr>
-	  <tr><th align="center"> Date Tested </th> <th align="center"> {{data[0][1]}} </th></tr>
-	  <tr><th align="center"> Timeslot </th> <th align="center"> {{data[0][2]}} </th></tr>
-	  <tr><th align="center"> Testing Location </th> <th align="center"> {{data[0][3]}} </th></tr>
-	  <tr><th align="center"> Date Processed</th> <th align="center"> {{data[0][4]}} </th></tr>
-	  <tr><th align="centet"> Pooled Result </th> <th align="center"> {{data[0][5]}} </th></tr>
-	  <tr><th align="centet"> Individual Result </th> <th align="center"> {{data[0][6]}} </th></tr>
-	  <tr><th align="centet"> Processed By </th> <th align="center"> {{data[0][7]}} </th></tr>
+	  <tr><td align="center"> Test ID # </td> <td align="center"> {{data[0][0]}} </td></tr>
+	  <tr><td align="center"> Date Tested </td> <td align="center"> {{data[0][1]}} </td></tr>
+	  <tr><td align="center"> Timeslot </td> <td align="center"> {{data[0][2]}} </td></tr>
+	  <tr><td align="center"> Testing Location </td> <td align="center"> {{data[0][3]}} </td></tr>
+	  <tr><td align="center"> Date Processed</td> <td align="center"> {{data[0][4]}} </td></tr>
+	  <tr><td align="center"> Pooled Result </td> <td align="center"> {{data[0][5]}} </td></tr>
+	  <tr><td align="center"> Individual Result </td> <td align="center"> {{data[0][6]}} </td></tr>
+	  <tr><td align="center"> Processed By </td> <td align="center"> {{data[0][7]}} </td></tr>
 	  </tr>
 	</table>
     <div class=action>

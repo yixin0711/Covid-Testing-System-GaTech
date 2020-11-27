@@ -2,13 +2,10 @@
 CS4400: Introduction to Database Systems
 Fall 2020
 Phase III Template
-
 Team 59
 Xin Yi (xyi38)
 Runze Yang (ryang318)
 Qingyuan Deng (qdeng39)
-
-
 Directions:
 Please follow all instructions from the Phase III assignment PDF.
 This file must run without error for credit.
@@ -111,16 +108,13 @@ BEGIN
 	AND (i_start_date <= t.appt_date OR i_start_date IS NULL)
 	AND (i_end_date >= t.appt_date OR i_end_date IS NULL);
     
-    if (select count(*) from student_view_results_result)=0
-    then insert into student_view_results_result values(NULL,NULL,NULL,NULL,NULL);end if;
-    
     
     -- End of solution
 END //
 DELIMITER ;
 
-CALL student_view_results('dkim99', 'negative', '2020-08-01', '2020-09-30');
-
+-- CALL student_view_results('dkim99', 'negative', '2020-08-01', '2020-09-30');
+-- CALL student_view_results('tless984',NULL,NULL,NULL);
 
 -- ID: 5a
 -- Author: asmith457
@@ -248,7 +242,8 @@ BEGIN
 	and username is NULL
 	and s.location in
 	(select location from student
-	where student_username=i_username);
+	where student_username=i_username)
+    order by appt_date,appt_time,s.site_name;
     -- End of solution
 
     END //
@@ -256,6 +251,8 @@ BEGIN
 -- CALL test_sign_up_filter('gburdell1', 'North Avenue (Centenial Room)', NULL, '2020-10-06', NULL, NULL);
 -- CALL test_sign_up_filter('gburdell1', NULL, NULL, NULL, NULL, NULL);
 -- CALL test_sign_up_filter('mgeller3', NULL, NULL, NULL, NULL, NULL);
+-- call test_sign_up_filter('dengqingyuan4',NULL,NULL,NULL,NULL,NULL);
+
 
 
 -- ID: 7b
@@ -272,7 +269,7 @@ CREATE PROCEDURE test_sign_up(
 )
 BEGIN
 -- Type solution below
-	if 'pending' not in
+	if ('pending' not in
 	(select test_status from student st
 	left join appointment a
 	on student_username=username
@@ -280,12 +277,21 @@ BEGIN
 	ON t.appt_date = a.appt_date
 	AND t.appt_time = a.appt_time
 	AND t.appt_site = a.site_name
-	where student_username=i_username)
+	where student_username=i_username)) or 
+    ((select test_status from student st
+	left join appointment a
+	on student_username=username
+	left join test t
+	ON t.appt_date = a.appt_date
+	AND t.appt_time = a.appt_time
+	AND t.appt_site = a.site_name
+	where student_username=i_username) is NULL)
 	then
 	select username from appointment
 	where site_name=i_site_name
 	and appt_date=i_appt_date
 	and appt_time=i_appt_time into @ava;
+    
     
     if @ava is NULL
 	then
@@ -295,6 +301,7 @@ BEGIN
 	and appt_date=i_appt_date
 	and appt_time=i_appt_time;
 	end if;
+    
 	if @ava is NULL
 	then
 	insert test(test_id,test_status,pool_id,appt_site,appt_date,appt_time)
@@ -306,8 +313,7 @@ BEGIN
 -- End of solution
 END //
 DELIMITER ;
-
-
+-- call test_sign_up('dengqingyuan','Bobby Dodd Stadium','2020-10-01','11:00:00','100067');
 
 -- Number: 8a
 -- Author: lvossler3

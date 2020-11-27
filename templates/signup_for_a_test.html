@@ -1,22 +1,26 @@
 {% extends 'layout.html' %}
 {% block title%} GT COVID-19 Testing {% endblock %}
 
+{% block link%} 
+	<a href="{{ url_for('index') }}"> Return to Home Page </a> | 
+	<a href="{{ url_for('logout') }}"> Log Out {{[g.user]}}</a> 
+{%  endblock%}
 
 {% block body%}
 	<h2> Signup For A Test </h2>
 	
-    {% if error %}
-        <p><strong>Error:</strong> {{ error }}
-    {% endif %}
-    
-    {% with messages = get_flashed_messages() %}
-      {% if messages %}
-        <ul class=flashes>
-        {% for message in messages %}<li>{{ message }}</li>
-        {% endfor %}</ul>
-      {% endif %}
-    {% endwith %}
-    
+	{% if error %}
+	<div class = error>
+	  <strong>Error : </strong> {{error}}
+	</div>
+	{% endif%}
+	
+	{% if message %}
+	<div class =message>
+	  <strong>Congrat! : </strong> {{message}}
+	</div>
+	{% endif%}
+
 	<form action="" method=post>
 	{% if flag==0 %}
 	<p>
@@ -63,21 +67,23 @@
 
 	
 	<table width="600" border="1", align="center">
-
+    <thead>
 	  <tr>
 	  	<th align="center"> Date </th>
 	    <th align="center"> Time</th>
-	    <th align="centet"> Site Address</th>
-	    <th align="centet"> Test Site</th>
-	    <th align="centet"> Signup</th>
+	    <th align="center"> Site Address</th>
+	    <th align="center"> Test Site</th>
+	    <th align="center"> Signup</th>
 	  </tr>
+	  </thead>
+	  <tbody>
 	  {% for row in data%}
 	  <tr>
-	    <th align="center"> {{row[0]}} </th>
-	    <th align="center"> {{row[1]}}</th>
-	    <th align="center"> {{row[2]}} </th>
-	    <th align="center"> {{row[3]}} </th>
-	    <th align="center"><label ><input type="radio" name="clickIn"  value="{{row[0]}},{{row[1]}},{{row[2]}},{{row[3]}}" /></label></th>
+	    <td align="center"> {{row[0]}} </td>
+	    <td align="center"> {{row[1]}}</td>
+	    <td align="center"> {{row[2]}} </td>
+	    <td align="center"> {{row[3]}} </td>
+	    <td align="center"><label ><input type="radio" name="clickIn"  value="{{row[0]}},{{row[1]}},{{row[2]}},{{row[3]}}" /></label></th>
 	  </tr>
 	  {% endfor %}
 	</table>

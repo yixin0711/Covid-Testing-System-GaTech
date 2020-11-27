@@ -1,6 +1,9 @@
 {% extends 'layout.html' %}
 {% block title%} GT COVID-19 Testing {% endblock %}
-
+{% block link%} 
+	<a href="{{ url_for('index') }}"> Return to Home Page </a> | 
+	<a href="{{ url_for('logout') }}"> Log Out {{[g.user]}}</a> 
+{%  endblock%}
 
 {% block body%}
 	<h2> Aggregate Test Results </h2>
@@ -36,7 +39,7 @@
 	{% if flag==0%}
         <option value="">All</option>
     	{% else %}
-    		<option value="{{request.form._testing_sit}}">{{request.form._testing_sit}}</option>
+    		<option value="{{request.form._testing_site}}">{{request.form._testing_site}}</option>
     		<option value="">All</option>
     	{% endif %}
             	{% for s in site %}
@@ -47,28 +50,30 @@
     <p>
 	    Date Processed:
 	    {% if flag==0%}
-	    <input type="date" name=_start_date value="" size=30 min="2019-01-01" max="2020-12-31"> 
+	    <input type="date" name=_start_date value="" min="2019-01-01" max="2020-12-31"> 
 	    -
-	    <input type="date" name=_end_date size=30 value="" min="2019-01-01" max="2020-12-31"> 
+	    <input type="date" name=_end_date value="" min="2019-01-01" max="2020-12-31"> 
 	    {% else %}
-	    <input type="date" name=_start_date value="{{request.form._start_date}}" size=30 min="2019-01-01" max="2020-12-31"> 
+	    <input type="date" name=_start_date value="{{request.form._start_date}}"  min="2019-01-01" max="2020-12-31"> 
 	    -
-	    <input type="date" name=_end_date size=30 value="{{request.form._end_date}}" min="2019-01-01" max="2020-12-31">
+	    <input type="date" name=_end_date value="{{request.form._end_date}}" min="2019-01-01" max="2020-12-31">
 	    {% endif %} 	    
 	</p>
 	
 	<table width="600" border="1", align="center">
-
+    <thead>
 	  <tr>
 	  	<th align="center"> Total </th>
 	    <th align="center"> {{total}}</th>
-	    <th align="centet"> 100%</th>
+	    <th align="center"> 100%</th>
 	  </tr>
+	</thead>
+    <tbody>
 	  {% for row in data%}
 	  <tr>
-	    <th align="center"> {{row[0]}} </th>
-	    <th align="center"> {{row[1]}}</th>
-	    <th align="centet"> {{row[2]}} </th>
+	    <td align="center"> {{row[0]}} </td>
+	    <td align="center"> {{row[1]}}</td>
+	    <td align="center"> {{row[2]}} </td>
 	  </tr>
 	  {% endfor %}
 	</table>

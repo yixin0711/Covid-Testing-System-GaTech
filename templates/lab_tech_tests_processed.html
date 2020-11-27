@@ -32,21 +32,23 @@
     	</p>
 	
 	<table width="600" border="1", align="center">
-
+    <thead>
 	  <tr>
 	  	<th align="center"> Test ID# </th>
 	    <th align="center"> Pool ID</th>
-	    <th align="centet"> Date Tested</th>
-	    <th align="centet"> Date Processed</th>
-	    <th align="centet"> Result</th>
+	    <th align="center"> Date Tested</th>
+	    <th align="center"> Date Processed</th>
+	    <th align="center"> Result</th>
 	  </tr>
+	  </thead>
+	  <tbody>
 	  {% for row in data%}
 	  <tr>
-	    <th align="center"> {{row[0]}} </th>
-	    <th align="center"> {{row[1]}}</th>
-	    <th align="centet"> {{row[2]}} </th>
-	    <th align="centet"> {{row[3]}} </th>
-	    <th align="centet"> {{row[4]}} </th>
+	    <td align="center"> {{row[0]}} </td>
+	    <td align="center"> {{row[1]}}</td>
+	    <td align="center"> {{row[2]}} </td>
+	    <td align="center"> {{row[3]}} </td>
+	    <td align="center"> {{row[4]}} </td>
 	  </tr>
 	  {% endfor %}
 	</table>

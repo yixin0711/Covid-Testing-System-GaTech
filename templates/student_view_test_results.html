@@ -1,5 +1,9 @@
 {% extends 'layout.html' %}
 {% block title%} GT COVID-19 Testing {% endblock %}
+{% block link%} 
+	<a href="{{ url_for('index') }}"> Return to Home Page </a> | 
+	<a href="{{ url_for('logout') }}"> Log Out {{[g.user]}}</a> 
+{%  endblock%}
 
 
 {% block body%}
@@ -41,34 +45,38 @@
 	    <th align="centet"> Pool Status </th>
 	    <th align="centet"> Status </th>
 	  </tr>
-	  	 {% for row in data%}
+    {% if e==0 %}
+	  {% for row in data1 %}
 	  <tr>
-	    <th align="center"> <a href="{{url_for('explore_test_result',id=row[0])}}">{{row[0]}}</a></th>
-	    <th align="center"> {{row[1]}} </th>
-	    <th align="center"> {{row[2]}}</th>
-	    <th align="centet"> {{row[3]}} </th>
-	    <th align="centet"> {{row[4]}} </th>
+	    <td align="center"> <a href="{{url_for('explore_test_result',id=row[0])}}">{{row[0]}}</a></td>
+	    <td align="center"> {{row[1]}} </td>
+	    <td align="center"> {{row[2]}}</td>
+	    <td align="center"> {{row[3]}} </td>
+	    <td align="center"> {{row[4]}} </td>
 	  </tr>
 	  {% endfor %}
-	</table>
-	  
-	  <!--
-	  {% for row in data%}
+	 {% for row in data2 %}
 	  <tr>
-        	<if {{row[4]}}=='pending' >
-        	<th align="center"> {{row[0]}} </th>
-        	<else/>
-	    <th align="center"> <a href="{{url_for('explore_test_result',id=row[0])}}">{{row[0]}}</a></th>
-	    </if>
-	    
+	    <th align="center">{{row[0]}}</a></th>
 	    <th align="center"> {{row[1]}} </th>
 	    <th align="center"> {{row[2]}}</th>
 	    <th align="center"> {{row[3]}} </th>
 	    <th align="center"> {{row[4]}} </th>
 	  </tr>
 	  {% endfor %}
+    {% else %}
+    	  <tr>
+	    <th align="center"> NULL</a></th>
+	    <th align="center"> NULL </th>
+	    <th align="center">NULL</th>
+	    <th align="center"> NULL </th>
+	    <th align="center"> NULL </th>
+	  </tr>
+	  {% endif %}
 	</table>
-	-->
+	  
+	
+
 
 	
     <div class=action>
