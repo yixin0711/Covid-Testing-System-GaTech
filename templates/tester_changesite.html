@@ -2,10 +2,15 @@
 {% block title%} GT COVID-19 Testing {% endblock %}
 {% block link%} 
 	<a href="{{ url_for('index') }}"> Return to Home Page </a> | 
-	<a href="{{ url_for('logout') }}"> Log Out </a> 
+	<a href="{{ url_for('logout') }}"> Log Out {{[g.user]}}</a> 
 {%  endblock%}
 {% block body%}
-	<h2> Test Tester Change Testing Site </h2>
+	{% if error %}
+	<div class = error>
+	  <strong>Error : </strong> {{error}}
+	</div>
+	{% endif%}
+	<h2> Site Tester Change Testing Site </h2>
 	<form action="" method=post>
 	<table>
 	<tbody>
@@ -22,7 +27,8 @@
 
 	</table>
 	<div class=action>
-        <input type="submit" name="update" value="Update">
+        <input type="submit" name="submit_button" value="Back(Home)">
+        <input type="submit" name="submit_button" value="Update">
     </div>
     </form>
 {% endblock%}

@@ -38,7 +38,7 @@ mysql = MySQL()
 
 # MySQL configurations
 app.config['MYSQL_DATABASE_USER'] = 'root'
-app.config['MYSQL_DATABASE_PASSWORD'] = '123456'  # your password here
+app.config['MYSQL_DATABASE_PASSWORD'] = '680212ok'  # your password here
 app.config['MYSQL_DATABASE_DB'] = 'covidtest_fall2020'
 app.config['MYSQL_DATABASE_HOST'] = 'localhost'
 
@@ -217,16 +217,6 @@ def before_request():
         g.user = session['user_id']
 
 
-def get_testing_site():
-    """
-    This function returns a list of testing site,
-    i.e. 'Bobby Dodd Stadium'
-    """
-    cursor.execute('select distinct site_name from site')
-    site_name = cursor.fetchall()
-    return list(itertools.chain(*site_name))
-
-
 def check_none(judge):
     if judge == "":
         return None
@@ -304,8 +294,6 @@ def login():
                 session['user_id'] = admin[0]
                 return redirect(url_for('admin_home'))
 
-        flash(error)
-
     return render_template('login.html', error=error)
 
 
@@ -319,6 +307,8 @@ def register():
     Hashes the password for security.
     """
     error = None
+    housing_list = get_housing()
+    location_list = get_location()
 
     if request.method == "POST":
         _username = request.form["username"]
@@ -392,14 +382,14 @@ def register():
 
                 except Exception as e:
                     error = str(e)
-                    return render_template("register.html", error=error)
+                    return render_template("register.html", error=error, housing = housing_list, location = location_list)
 
             else:
                 error = "You much select a user type."
-                return render_template("register.html", error=error)
+                return render_template("register.html", error=error, housing = housing_list, location = location_list)
             return redirect(url_for("login"))
 
-    return render_template("register.html", error=error)
+    return render_template("register.html", error=error, housing = housing_list, location = location_list)
 
 
 @app.route('/logout')
@@ -432,13 +422,6 @@ def back_home():
         return render_template('login.html', error=error)
 
 
-# 添加简单的安全性检查
-def user_judge():
-    if not session['user_id']:
-        error = 'Invalid User, please login'
-        return render_template('login.html', error=error)
-
-
 # screen 3: home screen
 @app.route("/student_home", methods=("GET", "POST"))
 def student_home():
@@ -452,6 +435,13 @@ def student_home():
 
     """
     error = None
+    
+    username = session['user_id']
+    _is_student, _ = is_student(username)
+    if not _is_student:
+        error = 'You do not have access to this page.'
+        return render_template('login.html', error=error)
+        
     if request.method == 'POST':
         _instr = request.form['submit_button']
         if _instr == 'View My Results':
@@ -482,6 +472,13 @@ def labtech_home():
             f. View daily test results
     """
     error = None
+    
+    username = session['user_id']
+    _is_labtech, _ = is_labtech(username)
+    if not _is_labtech:
+        error = 'You do not have access to this page.'
+        return render_template('login.html', error=error)
+    
     if request.method == 'POST':
         if 'Process Pool' == request.form["submit_button"]:
             return redirect(url_for("view_process_pools"))
@@ -519,18 +516,29 @@ def sitetester_home():
             e. View daily test results
     """
     error = None
-    if 'change_site' in request.form:
-        return redirect(url_for("login"))
-    elif 'view_appt' in request.form:
-        return redirect(url_for("view_appointments"))
-    elif 'view_daily' in request.form:
-        return redirect(url_for("login"))
-    elif 'view_agg' in request.form:
-        return redirect(url_for("login"))
-    elif 'create_appt' in request.form:
-        return redirect(url_for("create_appointment"))
+    
+    username = session['user_id']
+    _is_tester, _ = is_tester(username)
+    if not _is_tester:
+        error = 'You do not have access to this page.'
+        return render_template('login.html', error=error)
+    
+    if request.method == 'POST':
+        _instr = request.form['submit_button']
+        if _instr == 'Aggregate':
+            return redirect(url_for("aggregrate_test_results"))
+        elif _instr == 'Daily':
+            return redirect(url_for("daily"))
+        elif _instr == 'Change Sites':
+            return redirect(url_for("tester_changesite", id = username))
+        elif _instr == 'View Appointments':
+            return redirect(url_for("view_appointments"))
+        elif _instr == 'Create Appointment':
+            return redirect(url_for('create_appointment'))
+        else:
+            error = "Invalid selection"
+            return render_template("sitetester_home.html", error=error)
     else:
-        error = "Invalid selection"
         return render_template("sitetester_home.html", error=error)
 
 
@@ -542,18 +550,38 @@ def labtech_sitetester_home():
             Do any functionality associated with a Lab Technician or a Tester
     """
     error = None
-    if 'change_site' in request.form:
-        return redirect(url_for("login"))
-    elif 'view_appt' in request.form:
-        return redirect(url_for("login"))
-    elif 'view_daily' in request.form:
-        return redirect(url_for("daily"))
-    elif 'view_agg' in request.form:
-        return redirect(url_for("login"))
-    elif 'create_appt' in request.form:
-        return redirect(url_for("login"))
+    
+    username = session['user_id']
+    _is_tester, _ = is_tester(username)
+    _is_labtech, _ = is_labtech(username)
+    if not _is_tester and not _is_labtech:
+        error = 'You do not have access to this page.'
+        return render_template('login.html', error=error)
+    
+    if request.method == 'POST':
+        _instr = request.form['submit_button']
+        if _instr == 'View My Processed Tests':
+            return redirect(url_for("lab_tech_tests_processed"))
+        elif _instr == 'Aggregate':
+            return redirect(url_for("aggregrate_test_results"))
+        elif _instr == 'Process Pool':
+            return redirect(url_for("labtech_processpool", id = username))
+        elif _instr == 'Daily':
+            return redirect(url_for("daily"))
+        elif _instr == 'Create Pool':
+            return redirect(url_for("create_pool"))
+        elif _instr == 'View Pools':
+            return redirect(url_for("view_pools"))
+        elif _instr == 'Change Sites':
+            return redirect(url_for("tester_changesite", id =username))
+        elif _instr == 'View Appointments':
+            return redirect(url_for("view_appointments"))
+        elif _instr == 'Create Appointment':
+            return redirect(url_for('create_appointment'))
+        else:
+            error = "Invalid selection"
+            return render_template("labtech_sitetester_home.html", error=error)
     else:
-        error = "Invalid selection"
         return render_template("labtech_sitetester_home.html", error=error)
 
 
@@ -570,20 +598,32 @@ def admin_home():
         f. View daily test results
     """
     error = None
-    if 'change_site' in request.form:
-        return redirect(url_for("login"))
-    elif 'view_appt' in request.form:
-        return redirect(url_for("view_appointments"))
-    elif 'view_daily' in request.form:
-        return redirect(url_for("login"))
-    elif 'view_agg' in request.form:
-        return redirect(url_for("aggregrate_test_results"))
-    elif 'create_appt' in request.form:
-        return redirect(url_for("create_appointment"))
-    elif 'create_site' in request.form:
-        return redirect(url_for("admin_createsite"))
+    
+    username = session['user_id']
+    _is_admin, _ = is_admin(username)
+    if not _is_admin:
+        error = 'You do not have access to this page.'
+        return render_template('login.html', error=error)
+    
+    
+    if request.method == 'POST':
+        _instr = request.form['submit_button']
+        if _instr == 'Reassign Testers':
+            return redirect(url_for("admin_reassign"))
+        elif _instr == 'Create Testing Site':
+            return redirect(url_for("admin_createsite"))
+        elif _instr == 'Create Appointment':
+            return redirect(url_for("create_appointment"))
+        elif _instr == 'View Appointments':
+            return redirect(url_for("view_appointments"))
+        elif _instr == 'Aggregate':
+            return redirect(url_for("aggregrate_test_results"))
+        elif _instr == 'Daily':
+            return redirect(url_for("daily"))
+        else:
+            error = "Invalid selection"
+            return render_template("admin_home.html", error=error)
     else:
-        error = "Invalid selection"
         return render_template("admin_home.html", error=error)
 
 
@@ -593,6 +633,10 @@ def admin_home():
 def student_view_test_results():
     e=0
     _username = session['user_id']
+    _is_student, _ = is_student(_username)
+    if not _is_student:
+        error = 'You do not have access to this page.'
+        return render_template('login.html', error=error)
 
     if request.method == "POST":
         _instr = request.form['submit_button']
@@ -634,6 +678,14 @@ def student_view_test_results():
 # screen 5: connect to screen 4
 @app.route("/student_home/student_view_test_results/explore_test_result/<id>", methods=("GET", "POST"))
 def explore_test_result(id):
+    
+    error = None
+    _username = session['user_id']
+    _is_student, _ = is_student(_username)
+    if not _is_student:
+        error = 'You do not have access to this page.'
+        return render_template('login.html', error=error)
+    
     if request.method == "POST":
         _instr = request.form['submit_button']
         if _instr == 'Back(Home)':
@@ -656,6 +708,9 @@ def explore_test_result(id):
 # need to add def get_testing_site()
 @app.route("/aggregrate_test_results", methods=("GET", "POST"))
 def aggregrate_test_results():
+    
+    user_judge()
+    
     site = get_testing_site()
     housing = get_housing()
     location = get_location()
@@ -704,10 +759,17 @@ def aggregrate_test_results():
 # screen 7: connect to screen 3: student home
 @app.route("/student_home/signup_for_a_test", methods=("GET", "POST"))
 def signup_for_a_test():
+    
     error = None
     message=None
     site = get_testing_site()
+    
     _username = session['user_id']
+    _is_student, _ = is_student(_username)
+    if not _is_student:
+        error = 'You do not have access to this page.'
+        return render_template('login.html', error=error)
+    
     if request.method == "POST":
         _instr = request.form['submit_button']
 
@@ -764,7 +826,7 @@ def signup_for_a_test():
                 cursor.execute(sql)
                 count_test_update = cursor.fetchone()
                 if count_test_update[0] > count_test[0]:
-                    message = 'Successfully create an appointment!' + '  Test ID:' + _test_id + '  Date:' + _appt_date + '  Time:' + _appt_time + '  Site:' + _site_name
+                    message = 'Successfully signed up for an appointment!' + '  Test ID:' + _test_id + '  Date:' + _appt_date + '  Time:' + _appt_time + '  Site:' + _site_name
                 else:
                     error = "You already have one upcoming appointment!"
             else:
@@ -781,7 +843,13 @@ def signup_for_a_test():
 # screen 8: connect to screen 3: labtech home
 @app.route("/labtech_home/lab_tech_tests_processed", methods=("GET", "POST"))
 def lab_tech_tests_processed():
+    
+    error = None
     _lab_tech_username = session['user_id']
+    _is_labtech, _ = is_labtech(_lab_tech_username)
+    if not _is_labtech:
+        error = 'You do not have access to this page.'
+        return render_template('login.html', error=error)
 
     if request.method == "POST":
         _instr = request.form['submit_button']
@@ -817,6 +885,14 @@ def view_pools():
     """
     view_pools
     """
+    
+    error = None
+    _lab_tech_username = session['user_id']
+    _is_labtech, _ = is_labtech(_lab_tech_username)
+    if not _is_labtech:
+        error = 'You do not have access to this page.'
+        return render_template('login.html', error=error)
+    
     status_list = ("ALL", "Positive", "Negative", "Pending")
     error = None
     data = (())
@@ -884,6 +960,11 @@ def create_pool():
     error = None
     message = None
     _username = session['user_id']
+    _is_labtech, _ = is_labtech(_username)
+    if not _is_labtech:
+        error = 'You do not have access to this page.'
+        return render_template('login.html', error=error)
+    
     cursor.execute("select test_id, appt_date from test where pool_id is null;")
     data = cursor.fetchall()
     if request.method == "POST":
@@ -925,7 +1006,6 @@ def create_pool():
     elif request.method == "GET":
         pass
 
-    flash(error)
     cursor.execute("select test_id, appt_date from test where pool_id is null;")
     data = cursor.fetchall()
 
@@ -1024,6 +1104,12 @@ def labtech_processpool(id):
 @app.route("/view_process_pools", methods=("GET", "POST"))
 def view_process_pools():
     error = None
+    
+    _is_labtech, _ = is_labtech(session['user_id'])
+    if not _is_labtech:
+        error = 'You do not have access to this page.'
+        return render_template('login.html', error=error)
+    
     data = (())
     if request.method == "POST":
         _instr = request.form['submit_button']
@@ -1108,7 +1194,6 @@ def view_appointments():
     site = get_testing_site()
     error = None
 
-    _username = session['user_id']
     _is_admin, _ = is_admin(session['user_id'])
     _is_tester, _ = is_tester(session['user_id'])
     data = (())
@@ -1276,6 +1361,7 @@ def admin_reassign():
     all_sites = get_testing_site()
 
     testers_info = dict()
+    add_option_names = []
 
     for tester in tester_id:
         testers_info[tester] = []
@@ -1298,35 +1384,87 @@ def admin_reassign():
 
         testers_info[tester].append(current_sites)
         testers_info[tester].append(diff_sites)
+        
+        newsites_name = "newsites"+tester
+        testers_info[tester].append(newsites_name)
+        add_option_names.append(newsites_name)
 
     if request.method == "POST":
-        _delete_option = request.form.get('options')
-        _add_option = str(request.form.get('newsites'))
+        
+        _instr = request.form['submit_button']
 
-        if _delete_option is None and _add_option == 'select1':
+        if _instr == 'Back(Home)':
+            return redirect(url_for("back_home"))
+        
+        _delete_option = request.form.get('options')
+        
+        _add_list = []
+        for name in add_option_names:
+        #addoption 只能返回第一个下拉菜单的数据
+            _add_option = str(request.form.get(name))
+            if _add_option != 'select1':
+                _add_list.append(_add_option)
+
+        if _delete_option is not None and _add_list != []:
+            temp1 = _delete_option[1:-1].split(',')
+            tester = temp1[0][1:-1]
+            tester_name = testers_info[tester][1]
+            try:
+                cursor.callproc('unassign_tester', (tester, temp1[1][2:-1]))
+                conn.commit()
+                message = "You have successfully deleted {} from the site '{}'.".format(tester_name, temp1[1][2:-1])
+                flash(message)
+            except Exception as e:
+                error = str(e)
+                return render_template("admin_reassign.html", error=error, testers=testers_info, usernames=tester_id)
+            
+            for add in _add_list:
+                temp2 = add[1:-1].split(",")
+                tester = temp2[0][1:-1]
+                tester_name = testers_info[tester][1]
+                try:
+                    cursor.callproc('assign_tester', (tester, temp2[1][2:-1]))
+                    conn.commit()
+                    message = "You have successfully added {} to the site '{}'.".format(tester_name, temp2[1][2:-1])
+                    flash(message)
+                except Exception as e:
+                    error = str(e)
+                    return render_template("admin_reassign.html", error=error, testers=testers_info, usernames=tester_id)
+            return redirect(url_for('admin_reassign'))
+
+        elif _delete_option is not None and _add_list == []:
+            temp = _delete_option[1:-1].split(',')
+            tester = temp[0][1:-1]
+            tester_name = testers_info[tester][1]
+            try:
+                cursor.callproc('unassign_tester', (tester, temp[1][2:-1]))
+                conn.commit()
+                message = "You have successfully deleted {} from the site '{}'.".format(tester_name, temp[1][2:-1])
+                flash(message)
+                return redirect(url_for('admin_reassign'))
+            except Exception as e:
+                error = str(e)
+                return render_template("admin_reassign.html", error=error, testers=testers_info, usernames=tester_id)
+
+        elif _add_list != [] and _delete_option is None:
+            for add in _add_list:
+                temp = add[1:-1].split(",")
+                tester = temp[0][1:-1]
+                tester_name = testers_info[tester][1]
+                try:
+                    cursor.callproc('assign_tester', (tester, temp[1][2:-1]))
+                    conn.commit()
+                    message = "You have successfully added {} to the site '{}'.".format(tester_name, temp[1][2:-1])
+                    flash(message)
+                except Exception as e:
+                    error = str(e)
+                    return render_template("admin_reassign.html", error=error, testers=testers_info, usernames=tester_id)
+            return redirect(url_for('admin_reassign'))
+        
+        else:
             error = "You haven't update anything."
             return render_template("admin_reassign.html", error=error, testers=testers_info, usernames=tester_id)
-
-        if _delete_option is not None:
-            temp = _delete_option[1:-1].split(',')
-            try:
-                cursor.callproc('unassign_tester', (temp[0][1:-1], temp[1][2:-1]))
-                conn.commit()
-                return redirect(url_for('admin_reassign'))
-            except Exception as e:
-                error = str(e)
-                return render_template("admin_reassign.html", error=error, testers=testers_info, usernames=tester_id)
-
-        if not _add_option == 'select1':
-            temp = _add_option[1:-1].split(",")
-            try:
-                cursor.callproc('assign_tester', (temp[0][1:-1], temp[1][2:-1]))
-                conn.commit()
-                return redirect(url_for('admin_reassign'))
-            except Exception as e:
-                error = str(e)
-                return render_template("admin_reassign.html", error=error, testers=testers_info, usernames=tester_id)
-    flash(error)
+            
     return render_template("admin_reassign.html", error=error, testers=testers_info, usernames=tester_id)
 
 
@@ -1347,6 +1485,12 @@ def admin_createsite():
         return render_template('login.html', error=error)
 
     if request.method == "POST":
+        
+        _instr = request.form['submit_button']
+
+        if _instr == 'Back(Home)':
+            return redirect(url_for("back_home"))
+        
         _site_name = request.form["name"]
         _street = request.form["street"]
         _city = request.form['city']
@@ -1357,12 +1501,29 @@ def admin_createsite():
 
         if not _site_name or not _street or not _city or not _zip:
             error = "All field are required."
+            return render_template("admin_createsite.html", error=error,
+                           tester_list=testers,
+                           state_list=states,
+                           location_list=locations)
+            
         elif _state == 'select1':
             error = "State is required."
+            return render_template("admin_createsite.html", error=error,
+                           tester_list=testers,
+                           state_list=states,
+                           location_list=locations)
         elif _location == 'select2':
             error = "Location is required."
+            return render_template("admin_createsite.html", error=error,
+                           tester_list=testers,
+                           state_list=states,
+                           location_list=locations)
         elif _tester == 'select3':
             error = "A site cannot be created without at least one tester."
+            return render_template("admin_createsite.html", error=error,
+                           tester_list=testers,
+                           state_list=states,
+                           location_list=locations)
 
         names = _tester.split()
         cursor.execute('select username from user where fname = %s and lname = %s', (names[0], names[1],))
@@ -1381,10 +1542,16 @@ def admin_createsite():
                                  _location,
                                  _username,))
                 conn.commit()
+                message = "You have successfully created the site {}".format(_site_name)
+                flash(message)
                 return redirect(url_for('admin_createsite'))
 
             except Exception as e:
                 error = str(e)
+                return render_template("admin_createsite.html", error=_tester,
+                           tester_list=testers,
+                           state_list=states,
+                           location_list=locations)
 
     return render_template("admin_createsite.html", error=error,
                            tester_list=testers,
@@ -1411,6 +1578,9 @@ def labtech_viewpool(id):
     cursor.callproc('tests_in_pool', (_pool_id,))
     cursor.execute('select * from tests_in_pool_result')
     tests_data = cursor.fetchall()
+    
+    if request.method == "POST":
+        return redirect(url_for("view_pools"))
     return render_template("labtech_viewpool.html", pool=pool_data, tests=tests_data)
 
 
@@ -1422,6 +1592,7 @@ def tester_changesite(id):
     """
 
     error = None
+    message = None
 
     _is_tester, _ = is_tester(session['user_id'])
     if not _is_tester:
@@ -1441,42 +1612,70 @@ def tester_changesite(id):
     diff_sites = set(all_sites) - set(site_name)
 
     if request.method == "POST":
+        
+        _instr = request.form['submit_button']
+
+        if _instr == 'Back(Home)':
+            return redirect(url_for("back_home"))
+        
         _delete_option = request.form.get('options')
         _add_option = str(request.form.get('newsites'))
 
-        if _delete_option is None and _add_option == 'select1':
+        if _delete_option is not None and not _add_option == 'select1':
+            try:
+                cursor.callproc('unassign_tester', (username, _delete_option))
+                conn.commit()
+                cursor.callproc('assign_tester', (username, _add_option))
+                conn.commit()
+                message = "You have successfully deleted the site '{}' and added to the site '{}'.".format(_delete_option, _add_option)
+                flash(message)
+                return redirect(url_for('tester_changesite', id = username))
+            
+            except Exception as e:
+                error = str(e)
+                return render_template("tester_changesite.html", error=error,message = message,
+                                       username=username,
+                                       fullname=full_name,
+                                       sites=sites,
+                                       reset_sites=diff_sites)
+        elif _delete_option is not None and _add_option == 'select1':
+            try:
+                cursor.callproc('unassign_tester', (username, _delete_option))
+                conn.commit()
+                message = "You have successfully deleted the site '{}'.".format(_delete_option)
+                flash(message)
+                return redirect(url_for('tester_changesite', id = username))
+            
+            except Exception as e:
+                error = str(e)
+                return render_template("tester_changesite.html", error=error,message = message,
+                                       username=username,
+                                       fullname=full_name,
+                                       sites=sites,
+                                       reset_sites=diff_sites)
+        elif _delete_option is None and not _add_option == 'select1':
+            try:
+                cursor.callproc('assign_tester', (username, _add_option))
+                conn.commit()
+                message = "You have successfully added to the site '{}'.".format(_add_option)
+                flash(message)
+                return redirect(url_for('tester_changesite', id = username))
+            
+            except Exception as e:
+                error = str(e)
+                return render_template("tester_changesite.html", error=error,message = message,
+                                       username=username,
+                                       fullname=full_name,
+                                       sites=sites,
+                                       reset_sites=diff_sites)
+        else:
             error = "You haven't update anything."
             return render_template("tester_changesite.html", error=error,
                                    username=username,
                                    fullname=full_name,
                                    sites=sites,
                                    reset_sites=diff_sites)
-
-        if _delete_option is not None:
-            try:
-                cursor.callproc('unassign_tester', (username, _delete_option))
-                conn.commit()
-                return redirect(url_for('tester_changesite', id=username))
-            except Exception as e:
-                error = str(e)
-                return render_template("tester_changesite.html", error=error,
-                                       username=username,
-                                       fullname=full_name,
-                                       sites=sites,
-                                       reset_sites=diff_sites)
-
-        if not _add_option == 'select1':
-            try:
-                cursor.callproc('assign_tester', (username, _add_option))
-                conn.commit()
-                return redirect(url_for('tester_changesite', id=username))
-            except Exception as e:
-                error = str(e)
-                return render_template("tester_changesite.html", error=error,
-                                       username=username,
-                                       fullname=full_name,
-                                       sites=sites,
-                                       reset_sites=diff_sites)
+            
 
     return render_template("tester_changesite.html", error=error,
                            username=username,
@@ -1495,6 +1694,10 @@ def daily():
     cursor.callproc('daily_results')
     cursor.execute('select * from daily_results_result')
     daily_data = cursor.fetchall()
+    
+    if request.method == 'POST':
+        return redirect(url_for('back_home'))
+    
     return render_template("daily.html", results=daily_data)
 
 

@@ -730,7 +730,7 @@ BEGIN
 
     INSERT INTO pool_metadata_result
 -- Type solution below
-    SELECT p.pool_id, p.process_date, p.pool_status, LOWER(CONCAT(u.fname, u.lname))
+    SELECT p.pool_id, p.process_date, p.pool_status, CONCAT(u.fname, ' ', u.lname)
     FROM POOL as p LEFT JOIN USER as u ON p.processed_by = u.username
     WHERE (pool_id = i_pool_id);
 

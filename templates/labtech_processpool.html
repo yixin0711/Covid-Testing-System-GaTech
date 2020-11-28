@@ -1,7 +1,7 @@
 {% extends "layout.html" %}
 {% block link%}
-	<a href="{{ url_for('index') }}"> Return to Home Page </a> |
-	<a href="{{ url_for('logout') }}"> Log Out {{[g.user]}}</a>
+  <a href="{{ url_for('index') }}"> Return to Home Page </a> | 
+  <a href="{{ url_for('logout') }}"> Log Out {{[g.user]}}</a> 
 {%  endblock%}
 {% block body %}
     <h2 style="text-align: center;"> Process Pool </h2>

@@ -24,30 +24,32 @@
 	    <dt>Username: </dt>
 	    <dd><input type=text name=username size=30 value="{{ request.form.username}}"> </dd>
 	    <dt>Email:	 </dt>
-	    <dd><input type=text name=email size=30> </dd>
+	    <dd><input type=text name=email size=30 value="{{ request.form.email}}"> </dd>
 	    <dt>First Name:	 </dt>
-	    <dd><input type=text name=fname size=30> </dd>
+	    <dd><input type=text name=fname size=30 value="{{ request.form.fname}}"> </dd>
 	    <dt>Last Name:	 </dt>
-	    <dd><input type=text name=lname size=30> </dd>
+	    <dd><input type=text name=lname size=30 value="{{ request.form.lname}}"> </dd>
 	    <dt>Password:	 </dt>
 	    <dd><input type=password name=password size=30> </dd>
 	    <dt>Confirm Password:	 </dt>
 	    <dd><input type=password name=cpassword size=30> </dd>
 	    <dt>Phone No.:	 </dt>
-	    <dd><input type=number name=phone size=30> </dd>
+	    <dd><input type=number name=phone size=30 value="{{ request.form.phone}}"> </dd>
 	  </dl>
 	  <p>Housing Type:
 	  <select id="housingTypes" name = "htypes">
 	  	    <option value="select2">--Select--</option>
-      		<option value="Greek">Greek</option>
-      		<option value="GLC">GLC</option>
+      		{% for a in housing %}
+			<OPTION value="{{a}}">{{a}}</option>
+			{% endfor %}
     	</select>
       </p>
       <p>Location:
       <select id="locationTypes" name = "ltypes">
       		<option value="select3">--Select--</option>
-      		<option value="East">East</option>
-      		<option value="West">West</option>
+      		{% for b in location %}
+			<OPTION value="{{b}}">{{b}}</option>
+			{% endfor %}
     	</select>
       </p>
       <div class="checkbox">
