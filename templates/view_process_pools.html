@@ -1,0 +1,41 @@
+{% extends "layout.html" %}
+{% block title%} View Pools {% endblock%}
+{% block link%}
+	<a href="{{ url_for('index') }}"> Return to Home Page </a> |
+	<a href="{{ url_for('logout') }}"> Log Out {{[g.user]}}</a>
+{%  endblock%}
+{% block body %}
+    <h2 style="text-align: center;"> View Pending Pools </h2>
+    {% if error %}
+	<div class = error>
+	  <strong>Error : </strong> {{error}}
+	</div>
+	{% endif%}
+    <form id="form1", action="" method=post>
+      <table>
+        <thead>
+            <tr align="center">
+                <th>Pool ID
+                <th>Test Ids
+                <th>Date Processed
+                <th>Processed By
+                <th>Pool Status
+        </thead>
+        <tbody>
+            {% for row in data %}
+            <tr align="center">
+                <td><a href = "{{url_for('labtech_processpool', id = row[0])}}" > {{row[0]}} </a> </td>
+                <td>{{ row[1] }}
+                <td>{{ row[2] }}
+                <td>{{ row[3] }}
+                <td>{{ row[4] }}
+            </tr>
+            {% endfor %}
+      </table>
+      <div class=action>
+      <input type="submit" name="submit_button" value="Back(Home)">
+      </div>
+    </form>
+
+{% endblock %}
+

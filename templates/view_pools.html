@@ -1,9 +1,18 @@
 {% extends "layout.html" %}
 {% block title%} View Pools {% endblock%}
+{% block link%}
+	<a href="{{ url_for('index') }}"> Return to Home Page </a> |
+	<a href="{{ url_for('logout') }}"> Log Out {{[g.user]}}</a>
+{%  endblock%}
 {% block body %}
 
 
     <h2 style="text-align: center;"> View Pools </h2>
+    {% if error %}
+	<div class = error>
+	  <strong>Error : </strong> {{error}}
+	</div>
+	{% endif%}
     <form id="form1", action="" method=post>
       <dl>
         <dt>Date Processed:

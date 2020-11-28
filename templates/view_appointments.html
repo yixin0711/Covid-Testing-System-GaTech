@@ -1,7 +1,15 @@
 {% extends "layout.html" %}
 {% block title%} View Appointments {% endblock%}
+{% block link%}
+	<a href="{{ url_for('index') }}"> Return to Home Page </a> |
+	<a href="{{ url_for('logout') }}"> Log Out {{[g.user]}}</a>
+{%  endblock%}
 {% block body %}
-
+	{% if error %}
+	<div class = error>
+	  <strong>Error : </strong> {{error}}
+	</div>
+	{% endif%}
 
     <h2 style="text-align: center;"> View Appointments </h2>
     <form id="form", action="" method=post>
@@ -13,7 +21,9 @@
                   <OPTION value="{{s}}">{{s}}</option>
               {% endfor %}
           {% else %}
-                <option value="{{request.form.testing_site}}">{{request.form.testing_site}}</option>
+                {% if request.form.testing_site !="ALL" %}
+                    <option value="{{request.form.testing_site}}">{{request.form.testing_site}}</option>
+                {% endif %}
                 <option value="ALL">ALL</option>
                 {% for s in site %}
                     {% if s != request.form.testing_site%}

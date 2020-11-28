@@ -489,9 +489,7 @@ VALUES
 ('100054','pending','11','Coda Building','2020-09-13','11:00:00'),
 ('100055','pending','12','Stamps Health Services','2020-09-13','12:00:00'),
 ('100056','pending','12','Curran St Parking Deck','2020-09-13','13:00:00'),
-('100057','pending','12','CCBOH WIC Clinic','2020-09-13','14:00:00'),
-('100058','pending','12','North Avenue (Centenial Room)','2020-09-16','15:00:00'),
-('100059','pending','13','West Village','2020-09-16','16:00:00'),
-('100060','pending','13','Caddell Building','2020-09-16','17:00:00'),
-('100061','pending',NULL,'West Village','2020-09-16','18:00:00'),
-('100062','pending',NULL,'Curran St Parking Deck','2020-09-17','18:00:00');
+('100057','pending',null,'CCBOH WIC Clinic','2020-09-13','14:00:00'),
+('100058','pending',null,'North Avenue (Centenial Room)','2020-09-16','15:00:00'),
+('100059','pending',null,'West Village','2020-09-16','16:00:00'),
+('100060','pending',null,'Caddell Building','2020-09-16','17:00:00');

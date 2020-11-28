@@ -1,7 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="af75f688-f489-4268-b530-9882ae8ee46e" name="Default Changelist" comment="" />
+    <list default="true" id="af75f688-f489-4268-b530-9882ae8ee46e" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/templates/view_process_pools.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/mysql_export/db_init.sql" beforeDir="false" afterPath="$PROJECT_DIR$/mysql_export/db_init.sql" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/style.css" beforeDir="false" afterPath="$PROJECT_DIR$/static/style.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/create_appointment.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/create_appointment.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/create_pool.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/create_pool.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/lab_tech_tests_processed.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/lab_tech_tests_processed.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/labtech_processpool.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/labtech_processpool.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/labtech_sitetester_home.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/labtech_sitetester_home.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/register.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/register.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/signup_for_a_test.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/signup_for_a_test.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/sitetester_home.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/sitetester_home.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/view_appointments.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/view_appointments.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/view_pools.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/view_pools.html" afterDir="false" />
+    </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -15,11 +31,16 @@
       </list>
     </option>
   </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
   <component name="ProjectId" id="1kkawvxcj0uUM4WHmddPfUpHlrq" />
   <component name="PropertiesComponent">
     <property name="DefaultHtmlFileTemplate" value="HTML File" />
+    <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="restartRequiresConfirmation" value="false" />
     <property name="settings.editor.selected.configurable" value="configurable.group.editor" />
   </component>
   <component name="RunDashboard">
@@ -90,14 +111,40 @@
       <updated>1606247284264</updated>
       <workItem from="1606247291436" duration="35536000" />
       <workItem from="1606319392075" duration="9322000" />
+      <workItem from="1606493751255" duration="68000" />
+      <workItem from="1606493820931" duration="15271000" />
     </task>
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="1" />
   </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State>
+              <option name="COLUMN_ORDER" />
+            </State>
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="jinja2-line">
+          <url>file://$PROJECT_DIR$/templates/sitetester_home.html</url>
+          <option name="timeStamp" value="1" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
+  </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/Covid_Testing_System_GaTech_main$Covid_Testing_System_GaTech_main.coverage" NAME="Covid-Testing-System-GaTech-main Coverage Results" MODIFIED="1606332893447" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="" />
+    <SUITE FILE_PATH="coverage/Covid_Testing_System_GaTech$Covid_Testing_System_GaTech_main.coverage" NAME="Covid-Testing-System-GaTech-main Coverage Results" MODIFIED="1606544883045" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="" />
     <SUITE FILE_PATH="coverage/Covid_Testing_System_GaTech_main$main_merge.coverage" NAME="main_merge Coverage Results" MODIFIED="1606249025775" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
   </component>
 </project>

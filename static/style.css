@@ -169,8 +169,8 @@ ul.flashes li {
 
 div.message {
     margin: 10px 0;
-    background: green;
-    border: 1px solid #DD6F6F;
+    background: springgreen;
+    border: 1px solid green;
     -moz-border-radius: 2px;
     -webkit-border-radius: 2px;
     padding: 4px;

@@ -38,7 +38,7 @@ mysql = MySQL()
 
 # MySQL configurations
 app.config['MYSQL_DATABASE_USER'] = 'root'
-app.config['MYSQL_DATABASE_PASSWORD'] = '19970611Dqy'  # your password here
+app.config['MYSQL_DATABASE_PASSWORD'] = '123456'  # your password here
 app.config['MYSQL_DATABASE_DB'] = 'covidtest_fall2020'
 app.config['MYSQL_DATABASE_HOST'] = 'localhost'
 
@@ -484,7 +484,7 @@ def labtech_home():
     error = None
     if request.method == 'POST':
         if 'Process Pool' == request.form["submit_button"]:
-            return redirect(url_for("login"))
+            return redirect(url_for("view_process_pools"))
 
         elif 'View My Processed Tests' == request.form["submit_button"]:
             return redirect(url_for("lab_tech_tests_processed"))
@@ -494,6 +494,7 @@ def labtech_home():
 
         elif 'View Aggregate Results' == request.form["submit_button"]:
             return redirect(url_for("aggregrate_test_results"))
+
         elif 'View Pools' == request.form["submit_button"]:
             return redirect(url_for("view_pools"))
 
@@ -820,12 +821,11 @@ def view_pools():
     error = None
     data = (())
     flag = 0
-    flash(error)
     if request.method == "POST":
         _instr = request.form['submit_button']
 
         if _instr == 'Back(Home)':
-            return redirect(url_for("labtech_home"))
+            return redirect(url_for("back_home"))
 
         elif _instr == "Filter":
             if str(request.form['begin_process_date']) == '':
@@ -852,12 +852,20 @@ def view_pools():
             else:
                 _processed_by = request.form['processed_by']
 
-            cursor.callproc('view_pools', (_begin_process_date, _end_process_date, _pool_status, _processed_by,))
-            conn.commit()
-            cursor.execute('select * from view_pools_result; ')
-            data = cursor.fetchall()
-            error = None
-            flash(error)
+            if str(request.form['begin_process_date']) != '' and str(request.form['end_process_date']) != '':
+                if request.form['begin_process_date'] > request.form['end_process_date']:
+                    error = "The end date cannot be before the start date."
+                else:
+                    cursor.callproc('view_pools', (_begin_process_date, _end_process_date, _pool_status, _processed_by,))
+                    conn.commit()
+                    cursor.execute('select * from view_pools_result; ')
+                    data = cursor.fetchall()
+            else:
+                cursor.callproc('view_pools', (_begin_process_date, _end_process_date, _pool_status, _processed_by,))
+                conn.commit()
+                cursor.execute('select * from view_pools_result; ')
+                data = cursor.fetchall()
+
             flag = 1
 
         elif _instr == "Reset":
@@ -874,6 +882,7 @@ def view_pools():
 @app.route("/create_pool", methods=("GET", "POST"))
 def create_pool():
     error = None
+    message = None
     _username = session['user_id']
     cursor.execute("select test_id, appt_date from test where pool_id is null;")
     data = cursor.fetchall()
@@ -911,6 +920,8 @@ def create_pool():
                             pass
                     if num == 0:
                         error = "Please select at least one test into the pool!"
+                    else:
+                        message = "Create a pool successfully!"
     elif request.method == "GET":
         pass
 
@@ -918,7 +929,7 @@ def create_pool():
     cursor.execute("select test_id, appt_date from test where pool_id is null;")
     data = cursor.fetchall()
 
-    return render_template('create_pool.html', data=data, error=error)
+    return render_template('create_pool.html', data=data, error=error, message=message)
 
 # screen 11 View Pool - Process Pool (connect to screen 9)
 prev = None
@@ -937,6 +948,7 @@ def labtech_processpool(id):
     _pool_id = id
     flag = 0
     error = None
+    message = None
     data = (())
     _pool_status = 'pending'
     global prev
@@ -962,18 +974,23 @@ def labtech_processpool(id):
 
         if _instr == "Process Pool":
             _process_date = request.form['process_date']
+            cursor.execute("select max(appt_date) from test where pool_id = %s", (_pool_id,))
+            this_data = cursor.fetchall()
+            max_date = this_data[0][0]
+            print(_process_date)
+            print(max_date)
             if str(_process_date) == '':
                 error = "Please enter the process date!"
+            elif str(_process_date) <= str(max_date):
+                error = "The processed date of the pool must be after the latest timeslot date of the tests within the pool!"
             elif prev != 'Negative' and prev != 'Positive':
                 error = "Please select the pool status!"
             elif prev == 'Positive':
                 _pool_status = "positive"
-
                 cursor.callproc('process_pool', (_pool_id, 'positive', _process_date, _processed_by,))
                 conn.commit()
                 cursor.execute("select test_id from test where pool_id = %s", (_pool_id,))
                 test_id_list = cursor.fetchall()
-                print(test_id_list)
                 for test in test_id_list:
                     if str(request.form.get(test[0])) == 'Positive':
                         cursor.callproc('process_test', (test[0], 'positive',))
@@ -983,6 +1000,7 @@ def labtech_processpool(id):
                         conn.commit()
                 cursor.execute("select test_id, appt_date, test_status from test where pool_id = %s", (_pool_id,))
                 data = cursor.fetchall()
+                message = "Process the pool successfully!"
             else:
                 _pool_status = "negative"
                 cursor.callproc('process_pool', (_pool_id, 'negative', _process_date, _processed_by,))
@@ -994,19 +1012,44 @@ def labtech_processpool(id):
                     conn.commit()
                 cursor.execute("select test_id, appt_date, test_status from test where pool_id = %s", (_pool_id,))
                 data = cursor.fetchall()
+                message = "Process the pool successfully!"
             flag = 1
         prev = _instr
     elif request.method == "GET":
         pass
 
-    return render_template("labtech_processpool.html", _pool_id=_pool_id, flag=flag, data=data, error=error, _pool_status=_pool_status)
+    return render_template("labtech_processpool.html", _pool_id=_pool_id, flag=flag, data=data, error=error, _pool_status=_pool_status, message=message)
+
+# screen 10 and 11: view pending pool
+@app.route("/view_process_pools", methods=("GET", "POST"))
+def view_process_pools():
+    error = None
+    data = (())
+    if request.method == "POST":
+        _instr = request.form['submit_button']
+
+        if _instr == 'Back(Home)':
+            return redirect(url_for("back_home"))
+
+    elif request.method == "GET":
+        _begin_process_date = None
+        _end_process_date = None
+        _pool_status = 'pending'
+        _processed_by = None
+        cursor.callproc('view_pools', (_begin_process_date, _end_process_date, _pool_status, _processed_by,))
+        conn.commit()
+        cursor.execute('select * from view_pools_result; ')
+        data = cursor.fetchall()
+
+    return render_template('view_process_pools.html', error=error, data=data, )
+
 
 # screen 12: Create an Appointment
 @app.route("/create_appointment", methods=("GET", "POST"))
 def create_appointment():
     site = get_testing_site()
     error = None
-
+    message = None
     _username = session['user_id']
     _is_admin, _ = is_admin(session['user_id'])
     _is_tester, _ = is_tester(session['user_id'])
@@ -1019,10 +1062,7 @@ def create_appointment():
         _instr = request.form['submit_button']
 
         if _instr == 'Back(Home)':
-            if _is_admin:
-                return redirect(url_for("admin_home"))
-            else:
-                return redirect(url_for("sitetester_home"))
+            return redirect(url_for("back_home"))
 
         elif _instr == "Create Appointment":
             _site_name = request.form.get("site_name")
@@ -1035,25 +1075,32 @@ def create_appointment():
             elif str(_appt_time) == '':
                 error = 'Please enter the appointment time!'
             else:
-                if _is_admin:
-                    cursor.callproc('create_appointment', (_site_name, _appt_date, _appt_time,))
-                    conn.commit()
+                cursor.execute("select exists (select * from appointment where site_name = %s and appt_date = %s and appt_time = %s)", (_site_name, _appt_date, _appt_time,))
+                result = cursor.fetchall()
+                if result[0][0] != 0:
+                    error = "This time slot is occupied! Please try another one."
                 else:
-                    cursor.execute("select site from working_at where username = %s", (_username,))
-                    site_work_at = cursor.fetchall()
-                    site_all = []
-                    for site_x in site_work_at:
-                        site_all.append(site_x[0])
-                    if _site_name not in site_all:
-                        error = 'You cannot create appointments for the site you do not work at.'
-                    else:
+                    if _is_admin:
                         cursor.callproc('create_appointment', (_site_name, _appt_date, _appt_time,))
                         conn.commit()
+                        message = "Create an appointment successfully!"
+                    else:
+                        cursor.execute("select site from working_at where username = %s", (_username,))
+                        site_work_at = cursor.fetchall()
+                        site_all = []
+                        for site_x in site_work_at:
+                            site_all.append(site_x[0])
+                        if _site_name not in site_all:
+                            error = 'You cannot create appointments for the site you do not work at.'
+                        else:
+                            cursor.callproc('create_appointment', (_site_name, _appt_date, _appt_time,))
+                            conn.commit()
+                            message = "Create an appointment successfully!"
 
     elif request.method == "GET":
         pass
 
-    return render_template("create_appointment.html", site=site, error=error)
+    return render_template("create_appointment.html", site=site, error=error, message=message)
 
 # screen 13: View Appointments
 @app.route("/view_appointments", methods=("GET", "POST"))
@@ -1067,6 +1114,7 @@ def view_appointments():
     data = (())
     flag = 0
     flag1 = 0
+    _F = None
 
     if not _is_admin and not _is_tester:
         error = 'You do not have access to this page.'
@@ -1076,10 +1124,7 @@ def view_appointments():
         _instr = request.form['submit_button']
 
         if _instr == 'Back(Home)':
-            if _is_admin:
-                return redirect(url_for("admin_home"))
-            else:
-                return redirect(url_for("sitetester_home"))
+            return redirect(url_for("back_home"))
 
         elif _instr == "Filter":
             if str(request.form['begin_appt_date']) == '':
@@ -1107,27 +1152,101 @@ def view_appointments():
             else:
                 _site_name = request.form.get('testing_site')
 
-            if request.form.get("clickon") is not None:
-                ava = request.form["clickon"]
-                if ava == "booked":
-                    _F = 0
-                    flag1 = 1
-                elif ava == "available":
-                    _F = 1
-                    flag1 = 2
+            if (str(request.form['begin_appt_date']) != '' and str(request.form['end_appt_date']) != '') and (str(request.form['begin_appt_time']) == '' or  str(request.form['end_appt_time']) == ''):
+                if str(request.form['begin_appt_date']) > str(request.form['end_appt_date']):
+                    error = "The end appointment date cannot be before the start appointment date."
                 else:
-                    _F = None
-                    flag1 = 3
+                    if request.form.get("clickon") is not None:
+                        ava = request.form["clickon"]
+                        if ava == "booked":
+                            _F = 0
+                            flag1 = 1
+                        elif ava == "available":
+                            _F = 1
+                            flag1 = 2
+                        else:
+                            _F = None
+                            flag1 = 3
+                        cursor.callproc('view_appointments', (
+                            _site_name, _begin_appt_date, _end_appt_date, _begin_appt_time, _end_appt_time, _F,))
+                        conn.commit()
+                        cursor.execute('select * from view_appointments_result; ')
+                        data = cursor.fetchall()
+                        flag = 1
+                    else:
+                        error = "Please select the availability condition!"
+
+            elif (str(request.form['begin_appt_date']) == '' or str(request.form['end_appt_date']) == '') and (str(request.form['begin_appt_time']) != '' and  str(request.form['end_appt_time']) != ''):
+                if str(request.form['begin_appt_time']) > str(request.form['end_appt_time']):
+                    error = "The end appointment time cannot be before the start appointment time."
+                else:
+                    if request.form.get("clickon") is not None:
+                        ava = request.form["clickon"]
+                        if ava == "booked":
+                            _F = 0
+                            flag1 = 1
+                        elif ava == "available":
+                            _F = 1
+                            flag1 = 2
+                        else:
+                            _F = None
+                            flag1 = 3
+                        cursor.callproc('view_appointments', (
+                        _site_name, _begin_appt_date, _end_appt_date, _begin_appt_time, _end_appt_time, _F,))
+                        conn.commit()
+                        cursor.execute('select * from view_appointments_result; ')
+                        data = cursor.fetchall()
+                        flag = 1
+                    else:
+                        error = "Please select the availability condition!"
+
+            elif (str(request.form['begin_appt_date']) != '' and str(request.form['end_appt_date']) != '') and (str(request.form['begin_appt_time']) != '' and  str(request.form['end_appt_time']) != ''):
+                if str(request.form['begin_appt_date']) > str(request.form['end_appt_date']) and str(request.form['begin_appt_time']) > str(request.form['end_appt_time']):
+                    error = "The end appointment date/time cannot be before the start appointment date/time."
+                elif str(request.form['begin_appt_date']) > str(request.form['end_appt_date']):
+                    error = "The end appointment date cannot be before the start appointment date."
+                elif str(request.form['begin_appt_time']) > str(request.form['end_appt_time']):
+                    error = "The end appointment time cannot be before the start appointment time."
+                else:
+                    if request.form.get("clickon") is not None:
+                        ava = request.form["clickon"]
+                        if ava == "booked":
+                            _F = 0
+                            flag1 = 1
+                        elif ava == "available":
+                            _F = 1
+                            flag1 = 2
+                        else:
+                            _F = None
+                            flag1 = 3
+                        cursor.callproc('view_appointments', (
+                            _site_name, _begin_appt_date, _end_appt_date, _begin_appt_time, _end_appt_time, _F,))
+                        conn.commit()
+                        cursor.execute('select * from view_appointments_result; ')
+                        data = cursor.fetchall()
+                        flag = 1
+                    else:
+                        error = "Please select the availability condition!"
             else:
-                error = "Please select the availability condition!"
-
-            cursor.callproc('view_appointments', (_site_name, _begin_appt_date, _end_appt_date, _begin_appt_time, _end_appt_time, _F,))
-            conn.commit()
-            cursor.execute('select * from view_appointments_result; ')
-            data = cursor.fetchall()
-            flash(error)
-            flag = 1
-
+                if request.form.get("clickon") is not None:
+                    ava = request.form["clickon"]
+                    if ava == "booked":
+                        _F = 0
+                        flag1 = 1
+                    elif ava == "available":
+                        _F = 1
+                        flag1 = 2
+                    else:
+                        _F = None
+                        flag1 = 3
+                    cursor.callproc('view_appointments', (
+                        _site_name, _begin_appt_date, _end_appt_date, _begin_appt_time, _end_appt_time, _F,))
+                    conn.commit()
+                    cursor.execute('select * from view_appointments_result; ')
+                    data = cursor.fetchall()
+                    flag = 1
+                else:
+                    error = "Please select the availability condition!"
         elif _instr == "Reset":
             _site_name, _begin_appt_date, _end_appt_date, _begin_appt_time, _end_appt_time, flag, flag1 = None, None, None, None, None, 0, 0
 
@@ -1136,7 +1255,6 @@ def view_appointments():
         pass
 
     return render_template("view_appointments.html", site=site, error=error, data=data, flag=flag, flag1=flag1, )
-
 
 
 # screen 14
