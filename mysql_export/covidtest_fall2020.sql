@@ -254,6 +254,29 @@ BEGIN
 -- call test_sign_up_filter('dengqingyuan4',NULL,NULL,NULL,NULL,NULL);
 
 
+DROP PROCEDURE IF EXISTS all_states;
+DELIMITER //
+CREATE PROCEDURE all_states(
+		IN i_username VARCHAR(40)
+)
+BEGIN
+	DROP TABLE IF EXISTS all_states_result;
+    CREATE TABLE all_states_result(
+        test_status VARCHAR(40));
+    INSERT INTO all_states_result
+    
+	select test_status from student st
+	left join appointment a
+	on student_username=username
+	left join test t
+	ON t.appt_date = a.appt_date
+	AND t.appt_time = a.appt_time
+	AND t.appt_site = a.site_name
+	where student_username=i_username;
+END //
+DELIMITER ;
+-- call all_states('mgeller3');
+
 
 -- ID: 7b
 -- Author: lvossler3
@@ -269,24 +292,6 @@ CREATE PROCEDURE test_sign_up(
 )
 BEGIN
 -- Type solution below
-	if ('pending' not in
-	(select test_status from student st
-	left join appointment a
-	on student_username=username
-	left join test t
-	ON t.appt_date = a.appt_date
-	AND t.appt_time = a.appt_time
-	AND t.appt_site = a.site_name
-	where student_username=i_username)) or 
-    ((select test_status from student st
-	left join appointment a
-	on student_username=username
-	left join test t
-	ON t.appt_date = a.appt_date
-	AND t.appt_time = a.appt_time
-	AND t.appt_site = a.site_name
-	where student_username=i_username) is NULL)
-	then
 	select username from appointment
 	where site_name=i_site_name
 	and appt_date=i_appt_date
@@ -307,13 +312,16 @@ BEGIN
 	insert test(test_id,test_status,pool_id,appt_site,appt_date,appt_time)
 	values(i_test_id,'pending',NULL,i_site_name,i_appt_date,i_appt_time);
 	end if;
-		
-    end if;
+	
 
 -- End of solution
 END //
 DELIMITER ;
+
 -- call test_sign_up('dengqingyuan','Bobby Dodd Stadium','2020-10-01','11:00:00','100067');
+-- call test_sign_up('mgeller3','Bobby Dodd Stadium','2020-09-16','12:00:00','100067');
+
+
 
 -- Number: 8a
 -- Author: lvossler3
