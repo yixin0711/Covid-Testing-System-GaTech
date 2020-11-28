@@ -38,7 +38,7 @@ mysql = MySQL()
 
 # MySQL configurations
 app.config['MYSQL_DATABASE_USER'] = 'root'
-app.config['MYSQL_DATABASE_PASSWORD'] = '123456'  # your password here
+app.config['MYSQL_DATABASE_PASSWORD'] = '19970611Dqy'  # your password here
 app.config['MYSQL_DATABASE_DB'] = 'covidtest_fall2020'
 app.config['MYSQL_DATABASE_HOST'] = 'localhost'
 
@@ -794,6 +794,11 @@ def signup_for_a_test():
             _testing_site, _start_date, _end_date, _start_time, _end_time, flag = None, None, None, None, None, 0
 
         elif _instr == "Sign up":
+            cursor.callproc('all_states',(_username,))
+            cursor.execute("select * from all_states_result;")
+            states=cursor.fetchall()
+            state=[x[0] for x in states]
+            
             _testing_site = request.form.get("_testing_site")
             _start_date = request.form["_start_date"]
             _end_date = request.form["_end_date"]
@@ -807,9 +812,6 @@ def signup_for_a_test():
             _end_time = check_none(_end_time)
             flag = 1
             if request.form.get("clickIn") is not None:
-                sql = "select count(*) from test;"
-                cursor.execute(sql)
-                count_test = cursor.fetchone()
                 row = request.form["clickIn"]
                 row = row.split(',')
                 _appt_date = str(row[0])
@@ -819,13 +821,12 @@ def signup_for_a_test():
                 test_id=cursor.fetchone()
                 _test_id=str(int(test_id[0])+1)
                 #_test_id = str(100060 + int(random.uniform(1, 1000)))
-                cursor.callproc('test_sign_up', (_username, _site_name, _appt_date, _appt_time, _test_id,))
+
+                if 'pending' not in state:
+                    cursor.callproc('test_sign_up', (_username, _site_name, _appt_date, _appt_time, _test_id,))
                 # cursor.callproc('test_sign_up',('mgeller3','Bobby Dodd Stadium','2020-09-16', '12:00:00','100061',))
                 # cursor.callproc('mgeller3', 'Bobby Dodd Stadium', '2020-10-01', '11:00:00',))
-                conn.commit()
-                cursor.execute(sql)
-                count_test_update = cursor.fetchone()
-                if count_test_update[0] > count_test[0]:
+                    conn.commit()
                     message = 'Successfully signed up for an appointment!' + '  Test ID:' + _test_id + '  Date:' + _appt_date + '  Time:' + _appt_time + '  Site:' + _site_name
                 else:
                     error = "You already have one upcoming appointment!"
