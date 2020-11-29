@@ -188,7 +188,7 @@ BEGIN
 			AND (i_housing=housing_type OR i_housing IS NULL )
 			AND (i_testing_site = t.appt_site OR i_testing_site IS NULL)
 			AND (CASE WHEN i_end_date IS NOT NULL
-				THEN (p.process_date <= i_end_date) 
+				THEN (p.process_date <= i_end_date and (p.process_date>=i_start_date or i_start_date is NULL)) 
 				ELSE (p.process_date IS NULL OR p.process_date >= i_start_date OR i_start_date IS NULL) END)
 		group by test_status;
 	
