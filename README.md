@@ -17,7 +17,7 @@ There are some key modules to realize the interaction between the front end and 
 5. `request` module enables the back end to get the request parameters sent from the front end. 
 
 ### iv.	Work Distribution
-Xin Yi: Build screen 1, 2, 3, 14, 15, 16, 17, 18
-Qingyuan Deng: Build Screen 3, 4, 5, 6, 7, 8
-Runze Yang: Build screen 9, 10, 11, 12, 13
+Xin Yi: Build screen 1, 2, 3, 14, 15, 16, 17, 18.
+Qingyuan Deng: Build Screen 3, 4, 5, 6, 7, 8.
+Runze Yang: Build screen 9, 10, 11, 12, 13.
 
